@@ -1,7 +1,7 @@
 # GitBrowser
 Just some experimental code to examine the files in the .git/objects folder.
 ## Example Output
-<div>
+```
 Project .... GitBrowser
 
 Objects ....      25
@@ -59,4 +59,4 @@ Ndx   SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize
  15   F7B759  Ofs Dlt    8,470      514      703    2,447    1,600
  16   D412D6  Ofs Dlt    8,798      676    6,149   11,967    1,546
  17   B6A3DE  Blob       9,207    4,629  
- </div>
+ ```
