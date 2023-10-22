@@ -80,6 +80,6 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return String.format ("%-6s  %,8d  %s  ", objectType, data.length, name);
+    return String.format ("%-6.6s  %-6s  %,8d", name, objectType, data.length);
   }
 }

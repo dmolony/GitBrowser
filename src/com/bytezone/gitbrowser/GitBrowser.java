@@ -71,12 +71,11 @@ public class GitBrowser
     System.out.printf ("Tags ....... %,7d%n", totals[3]);
     System.out.printf ("Packfiles .. %,7d%n", packFiles.size ());
 
-    if (false)
+    if (true)
     {
       System.out.println ();
-      System.out.println ("Ndx   Type      Length    SHA-1");
-      System.out
-          .println ("---  ------   --------  ----------------------------------------");
+      System.out.println ("Ndx   SHA-1   Type      Length");
+      System.out.println ("---   ------  ------  --------");
 
       for (int i = 0; i < objects.size (); i++)
         System.out.printf ("%3d   %s%n", i, objects.get (i));
@@ -87,7 +86,7 @@ public class GitBrowser
       {
         System.out.println ();
         System.out.println (
-            "Ndx   SHA-1    Type     Offset  DstSize  RefOfst  SrcSize  DstSize");
+            "Ndx   SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize");
         System.out.println (
             "---   ------  -------  -------  -------  -------  -------  -------");
 
