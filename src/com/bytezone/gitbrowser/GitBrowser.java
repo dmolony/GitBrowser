@@ -39,7 +39,7 @@ public class GitBrowser
           objects.add (object);
           objectsBySha.put (object.getSha (), object);
           if (object.getObjectType () == ObjectType.TREE)
-            doTree ((Tree) object);
+            showTree ((Tree) object);
         }
 
     File packFolder = new File (path + "/pack");
@@ -153,7 +153,7 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
-  private void doTree (Tree tree)
+  private void showTree (Tree tree)
   // ---------------------------------------------------------------------------------//
   {
     System.out.println (tree.getText ());
