@@ -23,8 +23,9 @@ public class GitBrowser
   {
     //    String project = "Common";
     //    String project = "DiskTest";
-    String project = "EnigmaMachine";
+    //    String project = "EnigmaMachine";
     //    String project = "AppleFormat";
+    String project = "GitBrowser";
 
     String home = System.getProperty ("user.home");
     String path = home + "/Documents/GitLocal/" + project + "/.git/objects";
