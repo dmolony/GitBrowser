@@ -4,9 +4,9 @@ package com.bytezone.gitbrowser;
 public class IndexFileItem implements Comparable<IndexFileItem>
 // -----------------------------------------------------------------------------------//
 {
-  String sha1;
-  long crc;
-  long offset;
+  final String sha1;
+  final long crc;
+  final long offset;
 
   // ---------------------------------------------------------------------------------//
   public IndexFileItem (String sha1, long crc, long offset)

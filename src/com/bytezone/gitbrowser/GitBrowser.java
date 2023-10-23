@@ -13,9 +13,9 @@ import com.bytezone.gitbrowser.GitObject.ObjectType;
 public class GitBrowser
 // -----------------------------------------------------------------------------------//
 {
-  final List<GitObject> objects = new ArrayList<> ();
-  final List<PackFile> packFiles = new ArrayList<> ();
-  final Map<String, GitObject> objectsBySha = new TreeMap<> ();
+  private final List<GitObject> objects = new ArrayList<> ();
+  private final List<PackFile> packFiles = new ArrayList<> ();
+  private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitBrowser () throws FileNotFoundException
@@ -51,7 +51,8 @@ public class GitBrowser
     //    displayObject (58);
     //    System.out.println ();
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
-    //    displayPackObject (0, 10);
+    //    displayPackObject (0, 6);
+    //    displayPackObject (0, 7);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -84,7 +85,7 @@ public class GitBrowser
     if (true)
       for (PackFile packFile : packFiles)
       {
-        System.out.println ();
+        System.out.printf ("%nPack: %s%n%n", packFile.packFileSha1);
         System.out.println (
             "Ndx   SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize");
         System.out.println (

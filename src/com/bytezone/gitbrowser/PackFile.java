@@ -26,7 +26,7 @@ public class PackFile implements Iterable<PackFileItem>
   List<IndexFileItem> indexFileItems = new ArrayList<> ();
 
   Map<Long, PackFileItem> offsetListPackFile = new TreeMap<> ();
-  Map<Long, IndexFileItem> offsetList = new TreeMap<> ();
+  Map<Long, IndexFileItem> indexList = new TreeMap<> ();
 
   String packFileSha1;
   int totFiles;
@@ -108,7 +108,7 @@ public class PackFile implements Iterable<PackFileItem>
         IndexFileItem indexFileItem =
             new IndexFileItem (sha1[i], crc[i], offsetsIndex[i]);
         indexFileItems.add (indexFileItem);
-        offsetList.put (indexFileItem.offset, indexFileItem);
+        indexList.put (indexFileItem.offset, indexFileItem);
       }
 
       if (false)
@@ -118,7 +118,7 @@ public class PackFile implements Iterable<PackFileItem>
 
         System.out.println ();
 
-        for (IndexFileItem indexFileItem : offsetList.values ())
+        for (IndexFileItem indexFileItem : indexList.values ())
           System.out.println (indexFileItem);
       }
 
@@ -133,7 +133,6 @@ public class PackFile implements Iterable<PackFileItem>
   void addPack (File file)
   // ---------------------------------------------------------------------------------//
   {
-    //    System.out.printf ("%nPack File : %s%n%n", file.getName ());
     assert packFileSha1.equals (getSha1 (file));
 
     try
@@ -156,33 +155,47 @@ public class PackFile implements Iterable<PackFileItem>
         PackFileItem packFileItem = new PackFileItem (content, ptr);
         packFileItems.add (packFileItem);
         offsetListPackFile.put ((long) ptr, packFileItem);
-        ptr += packFileItem.getLength ();
+        ptr += packFileItem.getRawLength ();
 
-        packFileItem.setSha1 (offsetList.get (packFileItem.getOffset ()).sha1);
+        packFileItem.setSha1 (indexList.get (packFileItem.getOffset ()).sha1);
 
-        if (packFileItem.getType () == 6)
-        {
-          PackFileItem basePackFileItem =
-              offsetListPackFile.get (packFileItem.getBaseOffset ());
-
-          assert basePackFileItem != null;
-          assert packFileItem.getSrcSize () == basePackFileItem.getDstSize ();
-
-          packFileItem.setBase (basePackFileItem);
-        }
-        else if (packFileItem.getType () == 7)
-        {
-          String baseSha1 = packFileItem.getRefSha1 ();
-          packFileItem.setBase (objectsBySha.get (baseSha1));
-        }
+        if (packFileItem.isTypeDelta ())
+          updateDeltaRef (packFileItem);
       }
 
-      assert ptr + 20 == content.length;
+      assert ptr + 20 == content.length;          // room for the checksum
     }
     catch (IOException | DataFormatException e)
     {
       e.printStackTrace ();
     }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void updateDeltaRef (PackFileItem packFileItem)
+  // ---------------------------------------------------------------------------------//
+  {
+    if (packFileItem.getType () == 6)
+    {
+      PackFileItem basePackFileItem =
+          offsetListPackFile.get (packFileItem.getRefOffset ());
+
+      assert basePackFileItem != null;
+      assert packFileItem.getSrcSize () == basePackFileItem.getDstSize ();
+
+      packFileItem.setRefObject (basePackFileItem);
+    }
+    else if (packFileItem.getType () == 7)
+    {
+      GitObject gitObject = objectsBySha.get (packFileItem.getRefSha1 ());
+
+      assert gitObject != null;
+      assert packFileItem.getSrcSize () == gitObject.data.length;
+
+      packFileItem.setRefObject (gitObject);
+    }
+    else
+      System.out.printf ("Illegal pack file item type: %d%n", packFileItem.getType ());
   }
 
   // ---------------------------------------------------------------------------------//

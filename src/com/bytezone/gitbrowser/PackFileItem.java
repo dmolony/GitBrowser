@@ -11,19 +11,20 @@ public class PackFileItem
   static String[] typesText =
       { "???", "Commit", "Tree", "Blob", "Tag", "???", "Ofs Dlt", "Ref Dlt" };
 
-  private Header header;
-  private int offset;
-  private String refDeltaSha1;
+  private final Header header;
+  private final int offset;                 // unique identifier for this item
+  private int rawLength;
+
+  private byte[] data;                      // unpacked data
+  private String sha1;                      // sha1 value stored in the index
+  private GitObject gitObject;              // create as required
+
+  // delta information
   private Size srcSize;
   private Size dstSize;
-  private byte[] output;
-  private int length;
-  private String link = "";
-  private long baseOffset;
+  private long refDeltaOffset;
   private PackFileItem basePackFileItem;
-  private String sha1;
-
-  private GitObject gitObject;
+  private String refDeltaSha1;
   private GitObject baseGitObject;
 
   // ---------------------------------------------------------------------------------//
@@ -37,11 +38,9 @@ public class PackFileItem
 
     if (header.type == 6)                     // OBJ_OFS_DELTA
     {
-      // 0x78 0x9C is the zlib header
-
       Size baseOffsetSize = getBaseOffsetSize (buffer, ptr);
       ptr += baseOffsetSize.headerSize;
-      baseOffset = offset - baseOffsetSize.value;
+      refDeltaOffset = offset - baseOffsetSize.value;
     }
     else if (header.type == 7)                // OBJ_REF_DELTA
     {
@@ -55,19 +54,17 @@ public class PackFileItem
     assert header.value == resultLength;
 
     ptr += decompresser.getBytesRead ();
-    length = ptr - offset;
+    rawLength = ptr - offset;
 
     decompresser.end ();
 
-    output = new byte[resultLength];
-    System.arraycopy (tempBuffer, 0, output, 0, resultLength);
+    data = new byte[resultLength];
+    System.arraycopy (tempBuffer, 0, data, 0, resultLength);
 
     if (isTypeDelta ())
     {
-      srcSize = getSize (output, 0);                        // size of source object
-      dstSize = getSize (output, srcSize.headerSize);       // size of new object
-
-      link = String.format ("%,7d  %,7d  %,7d", baseOffset, srcSize.value, dstSize.value);
+      srcSize = getSize (data, 0);                        // size of source object
+      dstSize = getSize (data, srcSize.headerSize);       // size of new object
     }
   }
 
@@ -101,7 +98,7 @@ public class PackFileItem
     if (header.type == 7)
       return rebuildBuffer (baseGitObject.data);
 
-    return output;
+    return data;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -113,19 +110,19 @@ public class PackFileItem
     int ptr = 0;
     int insPtr = srcSize.headerSize + dstSize.headerSize;
 
-    while (insPtr < output.length)
+    while (insPtr < data.length)
     {
-      if ((output[insPtr] & 0x80) == 0)             // ADD instruction
+      if ((data[insPtr] & 0x80) == 0)             // ADD instruction
       {
-        int dataSize = output[insPtr++] & 0x7F;
-        System.arraycopy (output, insPtr, buffer, ptr, dataSize);
+        int dataSize = data[insPtr++] & 0x7F;
+        System.arraycopy (data, insPtr, buffer, ptr, dataSize);
 
         insPtr += dataSize;
         ptr += dataSize;
       }
       else                                          // COPY instruction
       {
-        CopyInstruction copyInstruction = getCopyInstruction (output, insPtr);
+        CopyInstruction copyInstruction = getCopyInstruction (data, insPtr);
         System.arraycopy (baseBuffer, copyInstruction.recordOffset, buffer, ptr,
             copyInstruction.recordSize);
 
@@ -137,24 +134,6 @@ public class PackFileItem
     assert ptr == dstSize.value;
 
     return buffer;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  void setBase (PackFileItem basePackFileItem)
-  // ---------------------------------------------------------------------------------//
-  {
-    assert header.type == 6 && this.basePackFileItem == null;
-
-    this.basePackFileItem = basePackFileItem;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  void setBase (GitObject baseGitObject)
-  // ---------------------------------------------------------------------------------//
-  {
-    assert header.type == 7 && this.baseGitObject == null;
-
-    this.baseGitObject = baseGitObject;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -172,17 +151,10 @@ public class PackFileItem
   }
 
   // ---------------------------------------------------------------------------------//
-  String getRefSha1 ()
+  int getRawLength ()
   // ---------------------------------------------------------------------------------//
   {
-    return refDeltaSha1;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  int getLength ()
-  // ---------------------------------------------------------------------------------//
-  {
-    return length;
+    return rawLength;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -190,13 +162,6 @@ public class PackFileItem
   // ---------------------------------------------------------------------------------//
   {
     return offset;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  long getBaseOffset ()
-  // ---------------------------------------------------------------------------------//
-  {
-    return baseOffset;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -248,21 +213,53 @@ public class PackFileItem
     return header.type == 6 || header.type == 7;
   }
 
-  // GIT: unpack_object_header_buffer
+  // ---------------------------------------------------------------------------------//
+  long getRefOffset ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return refDeltaOffset;            // internal object referenced by OBJ_OFS_DELTA
+  }
+
+  // ---------------------------------------------------------------------------------//
+  String getRefSha1 ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return refDeltaSha1;              // external object referenced by OBJ_REF_DELTA
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void setRefObject (PackFileItem basePackFileItem)
+  // ---------------------------------------------------------------------------------//
+  {
+    assert header.type == 6 && this.basePackFileItem == null;
+
+    this.basePackFileItem = basePackFileItem;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void setRefObject (GitObject baseGitObject)
+  // ---------------------------------------------------------------------------------//
+  {
+    assert header.type == 7 && this.baseGitObject == null;
+
+    this.baseGitObject = baseGitObject;
+  }
+
+  // GIT: unpack_object_header_buffer()
   // ---------------------------------------------------------------------------------//
   Header getHeader (byte[] buffer, int offset)
   // ---------------------------------------------------------------------------------//
   {
     int ptr = offset;
     boolean msb = (buffer[ptr] & 0x80) != 0;
-    int type = (buffer[ptr] & 0x70) >>> 4;                // 3 bits
-    long recordSize = buffer[ptr++] & 0x0F;               // 4 bits
+    int type = (buffer[ptr] & 0x70) >>> 4;                  // 3 bits
+    long recordSize = buffer[ptr++] & 0x0F;                 // 4 bits
     int width = 4;
 
     while (msb)
     {
       msb = (buffer[ptr] & 0x80) != 0;
-      long size = (buffer[ptr++] & 0x7F) << width;        // 7 bits
+      long size = (buffer[ptr++] & 0x7F) << width;          // append on the left
       recordSize |= size;
       width += 7;
     }
@@ -331,7 +328,7 @@ public class PackFileItem
     recordOffset = (int) (value & 0xFFFFFFFF);
     recordSize = (int) ((value & 0xFFFFFFFF00000000L) >>> 32);
 
-    if (recordSize == 0)
+    if (recordSize == 0)            // I have not tested this
       recordSize = 0x10000;
 
     return new CopyInstruction (ptr - offset, recordSize, recordOffset);
@@ -360,7 +357,16 @@ public class PackFileItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
+    String deltaRefDetails = "";
+
+    if (header.type == 6)
+      deltaRefDetails = String.format ("%,7d  %,7d  %,7d", refDeltaOffset, srcSize.value,
+          dstSize.value);
+    else if (header.type == 7)
+      deltaRefDetails =
+          String.format ("%7.7s  %,7d  %,7d", refDeltaSha1, srcSize.value, dstSize.value);
+
     return String.format ("%-6.6s  %-7s  %,7d  %,7d  %s", sha1, typesText[header.type],
-        header.offset, header.value, link);
+        header.offset, header.value, deltaRefDetails);
   }
 }
