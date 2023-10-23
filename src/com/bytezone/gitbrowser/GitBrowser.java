@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.bytezone.gitbrowser.GitObject.ObjectType;
-
 // -----------------------------------------------------------------------------------//
 public class GitBrowser
 // -----------------------------------------------------------------------------------//
@@ -38,8 +36,8 @@ public class GitBrowser
           GitObject object = GitObjectFactory.getObject (parentFolder, file);
           objects.add (object);
           objectsBySha.put (object.getSha (), object);
-          if (object.getObjectType () == ObjectType.TREE)
-            showTree ((Tree) object);
+          //          if (object.getObjectType () == ObjectType.TREE)
+          //            showTree ((Tree) object);
         }
 
     File packFolder = new File (path + "/pack");
@@ -52,7 +50,9 @@ public class GitBrowser
     //    System.out.println ();
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
     //    displayPackObject (0, 6);
-    //    displayPackObject (0, 7);
+
+    //    for (int i = 1; i <= 6; i++)
+    //      displayPackObject (0, i);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -75,33 +75,53 @@ public class GitBrowser
     if (true)
     {
       System.out.println ();
-      System.out.println ("Ndx   SHA-1   Type      Length");
-      System.out.println ("---   ------  ------  --------");
+      System.out.println ("Ndx  SHA-1   Type      Length");
+      System.out.println ("---  ------  ------  --------");
 
       for (int i = 0; i < objects.size (); i++)
-        System.out.printf ("%3d   %s%n", i, objects.get (i));
+        System.out.printf ("%3d  %s%n", i, objects.get (i));
     }
 
     if (true)
       for (PackFile packFile : packFiles)
       {
         System.out.printf ("%nPack: %s%n%n", packFile.packFileSha1);
+        displayPackTotals (packFile);
+        System.out.println ();
         System.out.println (
-            "Ndx   SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize");
+            "Ndx  SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize");
         System.out.println (
-            "---   ------  -------  -------  -------  -------  -------  -------");
+            "---  ------  -------  -------  -------  -------  -------  -------");
 
         for (int i = 0; i < packFile.totFiles; i++)
-          System.out.printf ("%3d   %s%n", i, packFile.packFileItems.get (i));
+          System.out.printf ("%3d  %s%n", i, packFile.packFileItems.get (i));
       }
+  }
 
-    System.out.println ();
+  // ---------------------------------------------------------------------------------//
+  private void displayPackTotals (PackFile packFile)
+  // ---------------------------------------------------------------------------------//
+  {
+    int[] totals = new int[8];
+
+    for (int i = 0; i < packFile.totFiles; i++)
+      totals[packFile.packFileItems.get (i).getType ()]++;
+
+    //    System.out.printf ("Project .... %s%n%n", project);
+    System.out.printf ("Objects .... %,7d%n", packFile.totFiles);
+    System.out.printf ("Commits .... %,7d%n", totals[1]);
+    System.out.printf ("Trees ...... %,7d%n", totals[2]);
+    System.out.printf ("Blobs ...... %,7d%n", totals[3]);
+    System.out.printf ("Tags ....... %,7d%n", totals[4]);
+    System.out.printf ("Delta ofs .. %,7d%n", totals[6]);
+    System.out.printf ("Delta ref .. %,7d%n", totals[7]);
   }
 
   // ---------------------------------------------------------------------------------//
   void displayObject (String sha)
   // ---------------------------------------------------------------------------------//
   {
+    System.out.println ();
     System.out.println (objectsBySha.get (sha).getText ());
   }
 
@@ -109,6 +129,7 @@ public class GitBrowser
   void displayObject (int index)
   // ---------------------------------------------------------------------------------//
   {
+    System.out.println ();
     System.out.println (objects.get (index).getText ());
   }
 
@@ -118,6 +139,7 @@ public class GitBrowser
   {
     PackFileItem packFileItem = packFiles.get (packNo).packFileItems.get (index);
 
+    System.out.println ();
     System.out.println (packFileItem.getObject ().getText ());
   }
 

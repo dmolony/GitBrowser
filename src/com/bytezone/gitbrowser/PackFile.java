@@ -34,22 +34,23 @@ public class PackFile implements Iterable<PackFileItem>
   String[] sha1;
   long[] offsetsIndex;
   long[] crc;
+  long[] fanout;
 
   final Map<String, GitObject> objectsBySha;
 
   // ---------------------------------------------------------------------------------//
-  public PackFile (File file, Map<String, GitObject> objectsBySha)       // index file
+  public PackFile (File indexFile, Map<String, GitObject> objectsBySha)
   // ---------------------------------------------------------------------------------//
   {
-    packFileSha1 = getSha1 (file);
+    packFileSha1 = getSha1 (indexFile);
     this.objectsBySha = objectsBySha;
 
-    long[] fanout = new long[256];
-    this.indexFile = file;
+    fanout = new long[256];
+    this.indexFile = indexFile;
 
     try
     {
-      byte[] content = Files.readAllBytes (file.toPath ());
+      byte[] content = Files.readAllBytes (indexFile.toPath ());
       String toc = new String (content, 1, 3);
       long version = Utility.unsignedIntBigEndian (content, 4);
 
@@ -130,14 +131,14 @@ public class PackFile implements Iterable<PackFileItem>
   }
 
   // ---------------------------------------------------------------------------------//
-  void addPack (File file)
+  void addPack (File packFile)
   // ---------------------------------------------------------------------------------//
   {
-    assert packFileSha1.equals (getSha1 (file));
+    assert shaMatches (packFile);
 
     try
     {
-      byte[] content = Files.readAllBytes (file.toPath ());
+      byte[] content = Files.readAllBytes (packFile.toPath ());
 
       String pack = new String (content, 0, 4);
       assert pack.equals ("PACK");
@@ -172,43 +173,16 @@ public class PackFile implements Iterable<PackFileItem>
   }
 
   // ---------------------------------------------------------------------------------//
-  private void updateDeltaRef (PackFileItem packFileItem)
+  void addReverse (File reverseIndexFile)
   // ---------------------------------------------------------------------------------//
   {
-    if (packFileItem.getType () == 6)
-    {
-      PackFileItem basePackFileItem =
-          offsetListPackFile.get (packFileItem.getRefOffset ());
-
-      assert basePackFileItem != null;
-      assert packFileItem.getSrcSize () == basePackFileItem.getDstSize ();
-
-      packFileItem.setRefObject (basePackFileItem);
-    }
-    else if (packFileItem.getType () == 7)
-    {
-      GitObject gitObject = objectsBySha.get (packFileItem.getRefSha1 ());
-
-      assert gitObject != null;
-      assert packFileItem.getSrcSize () == gitObject.data.length;
-
-      packFileItem.setRefObject (gitObject);
-    }
-    else
-      System.out.printf ("Illegal pack file item type: %d%n", packFileItem.getType ());
-  }
-
-  // ---------------------------------------------------------------------------------//
-  void addReverse (File file)
-  // ---------------------------------------------------------------------------------//
-  {
-    assert shaMatches (file);
+    assert shaMatches (reverseIndexFile);
 
     long[] reverse = new long[totFiles];          // totFiles
 
     try
     {
-      byte[] content = Files.readAllBytes (file.toPath ());
+      byte[] content = Files.readAllBytes (reverseIndexFile.toPath ());
       String head = new String (content, 0, 4);
       assert head.equals ("RIDX");
 
@@ -247,6 +221,7 @@ public class PackFile implements Iterable<PackFileItem>
   // ---------------------------------------------------------------------------------//
   {
     String fileName = file.getName ();
+    assert fileName.startsWith ("pack-");
 
     int pos1 = fileName.indexOf ('-');
     int pos2 = fileName.lastIndexOf ('.');
@@ -259,6 +234,33 @@ public class PackFile implements Iterable<PackFileItem>
   // ---------------------------------------------------------------------------------//
   {
     return packFileSha1.equals (getSha1 (file));
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void updateDeltaRef (PackFileItem packFileItem)
+  // ---------------------------------------------------------------------------------//
+  {
+    if (packFileItem.getType () == 6)
+    {
+      PackFileItem basePackFileItem =
+          offsetListPackFile.get (packFileItem.getRefOffset ());
+
+      assert basePackFileItem != null;
+      assert packFileItem.getSrcSize () == basePackFileItem.getDstSize ();
+
+      packFileItem.setRefObject (basePackFileItem);
+    }
+    else if (packFileItem.getType () == 7)
+    {
+      GitObject gitObject = objectsBySha.get (packFileItem.getRefSha1 ());
+
+      assert gitObject != null;
+      assert packFileItem.getSrcSize () == gitObject.data.length;
+
+      packFileItem.setRefObject (gitObject);
+    }
+    else
+      System.out.printf ("Illegal pack file item type: %d%n", packFileItem.getType ());
   }
 
   // ---------------------------------------------------------------------------------//
