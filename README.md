@@ -72,8 +72,8 @@ Ndx  SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize
  17  B6A3DE  Blob       9,207    4,629  
  ```
  
- ## More stuff
- some text
+ ## Rebuilding a packed delta file
+ Object 14120B refers to FA665C which refers to 07B8DF.
  ```
  14120B  BLOB       1,242
 ------------------------------------------------------------
