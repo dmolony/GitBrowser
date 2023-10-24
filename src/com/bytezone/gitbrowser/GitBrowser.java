@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.bytezone.gitbrowser.GitObject.ObjectType;
+
 // -----------------------------------------------------------------------------------//
 public class GitBrowser
 // -----------------------------------------------------------------------------------//
@@ -14,6 +16,7 @@ public class GitBrowser
   private final List<GitObject> objects = new ArrayList<> ();
   private final List<PackFile> packFiles = new ArrayList<> ();
   private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
+  private final Map<String, String> namesBySha = new TreeMap<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitBrowser () throws FileNotFoundException
@@ -36,8 +39,11 @@ public class GitBrowser
           GitObject object = GitObjectFactory.getObject (parentFolder, file);
           objects.add (object);
           objectsBySha.put (object.getSha (), object);
-          //          if (object.getObjectType () == ObjectType.TREE)
-          //            showTree ((Tree) object);
+
+          if (object.getObjectType () == ObjectType.TREE)
+            doTree ((Tree) object);
+          else if (object.getObjectType () == ObjectType.COMMIT)
+            doCommit ((Commit) object);
         }
 
     File packFolder = new File (path + "/pack");
@@ -46,13 +52,11 @@ public class GitBrowser
 
     displayTotals (project);
 
-    //    displayObject (58);
-    //    System.out.println ();
+    //    displayObject (0);
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
-    //    displayPackObject (0, 6);
-
     //    for (int i = 1; i <= 6; i++)
     //      displayPackObject (0, i);
+    displayPackObject (0, 11);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -79,7 +83,12 @@ public class GitBrowser
       System.out.println ("---  ------  ------  --------");
 
       for (int i = 0; i < objects.size (); i++)
-        System.out.printf ("%3d  %s%n", i, objects.get (i));
+      {
+        GitObject object = objects.get (i);
+        String name = namesBySha.get (object.getSha ().toUpperCase ());
+        System.out.printf ("%3d  %s  %s%n", i, object,
+            object.getObjectType () == ObjectType.BLOB ? name : "");
+      }
     }
 
     if (true)
@@ -107,7 +116,6 @@ public class GitBrowser
     for (int i = 0; i < packFile.totFiles; i++)
       totals[packFile.packFileItems.get (i).getType ()]++;
 
-    //    System.out.printf ("Project .... %s%n%n", project);
     System.out.printf ("Objects .... %,7d%n", packFile.totFiles);
     System.out.printf ("Commits .... %,7d%n", totals[1]);
     System.out.printf ("Trees ...... %,7d%n", totals[2]);
@@ -140,7 +148,9 @@ public class GitBrowser
     PackFileItem packFileItem = packFiles.get (packNo).packFileItems.get (index);
 
     System.out.println ();
-    System.out.println (packFileItem.getObject ().getText ());
+    GitObject object = packFileItem.getObject ();
+    //    System.out.println (object);
+    System.out.println (object.getText ());
   }
 
   // Process .git/objects/pack folder
@@ -176,11 +186,18 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
-  private void showTree (Tree tree)
+  private void doTree (Tree tree)
   // ---------------------------------------------------------------------------------//
   {
-    System.out.println (tree.getText ());
-    System.out.println ();
+    for (TreeItem treeItem : tree)
+      namesBySha.put (treeItem.sha1, treeItem.name);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void doCommit (Commit commit)
+  // ---------------------------------------------------------------------------------//
+  {
+    namesBySha.put (commit.getTreeSha (), "root");
   }
 
   // ---------------------------------------------------------------------------------//

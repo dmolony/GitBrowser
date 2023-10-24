@@ -12,6 +12,8 @@ public final class Commit extends GitObject
   private int authorIndex;
   private int committerIndex;
 
+  private String treeSha;
+
   // ---------------------------------------------------------------------------------//
   public Commit (String name, byte[] data)
   // ---------------------------------------------------------------------------------//
@@ -19,6 +21,7 @@ public final class Commit extends GitObject
     super (name, data, ObjectType.COMMIT);
 
     commitLines = split (data);
+    treeSha = skipFirst (commitLines.get (0)).toUpperCase ();
 
     int lineNo = 0;
     for (String line : commitLines)
@@ -45,6 +48,13 @@ public final class Commit extends GitObject
   }
 
   // ---------------------------------------------------------------------------------//
+  public String getTreeSha ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return treeSha;
+  }
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public String getText ()
   // ---------------------------------------------------------------------------------//
@@ -53,12 +63,10 @@ public final class Commit extends GitObject
 
     text.append ("%n%s%n".formatted (LINE));
 
-    text.append (
-        "Tree ....... %s%n".formatted (skipFirst (commitLines.get (0)).substring (0, 6)));
+    text.append ("Tree ....... %6.6s%n".formatted (treeSha));
     if (parentIndex > 0)
       for (int i = 1; i <= parentIndex; i++)
-        text.append ("Parent ..... %s%n"
-            .formatted (skipFirst (commitLines.get (i)).substring (0, 6)));
+        text.append ("Parent ..... %6.6s%n".formatted (skipFirst (commitLines.get (i))));
     text.append (
         "Author ..... %s%n".formatted (skipFirst (commitLines.get (authorIndex))));
     text.append (
