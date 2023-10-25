@@ -23,9 +23,9 @@ public class PackFileItem
   private Size srcSize;
   private Size dstSize;
   private long refDeltaOffset;
-  private PackFileItem basePackFileItem;
+  private PackFileItem baseOffsetItem;
   private String refDeltaSha1;
-  private GitObject baseGitObject;
+  private GitObject baseRefObject;
 
   // ---------------------------------------------------------------------------------//
   public PackFileItem (byte[] buffer, int ptr) throws DataFormatException
@@ -93,10 +93,10 @@ public class PackFileItem
   // ---------------------------------------------------------------------------------//
   {
     if (header.type == 6)
-      return rebuildBuffer (basePackFileItem.getBuffer ());
+      return rebuildBuffer (baseOffsetItem.getBuffer ());     // recursion!
 
     if (header.type == 7)
-      return rebuildBuffer (baseGitObject.data);
+      return rebuildBuffer (baseRefObject.buffer);
 
     return data;
   }
@@ -112,7 +112,7 @@ public class PackFileItem
 
     while (insPtr < data.length)
     {
-      if ((data[insPtr] & 0x80) == 0)             // ADD instruction
+      if ((data[insPtr] & 0x80) == 0)               // ADD instruction
       {
         int dataSize = data[insPtr++] & 0x7F;
         System.arraycopy (data, insPtr, buffer, ptr, dataSize);
@@ -175,7 +175,7 @@ public class PackFileItem
   int getBaseType ()
   // ---------------------------------------------------------------------------------//
   {
-    return isTypeDelta () ? basePackFileItem.getBaseType () : header.type;
+    return isTypeDelta () ? baseOffsetItem.getBaseType () : header.type;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -231,18 +231,18 @@ public class PackFileItem
   void setRefObject (PackFileItem basePackFileItem)
   // ---------------------------------------------------------------------------------//
   {
-    assert header.type == 6 && this.basePackFileItem == null;
+    assert header.type == 6 && this.baseOffsetItem == null;
 
-    this.basePackFileItem = basePackFileItem;
+    this.baseOffsetItem = basePackFileItem;
   }
 
   // ---------------------------------------------------------------------------------//
   void setRefObject (GitObject baseGitObject)
   // ---------------------------------------------------------------------------------//
   {
-    assert header.type == 7 && this.baseGitObject == null;
+    assert header.type == 7 && this.baseRefObject == null;
 
-    this.baseGitObject = baseGitObject;
+    this.baseRefObject = baseGitObject;
   }
 
   // GIT: unpack_object_header_buffer()

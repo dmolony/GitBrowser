@@ -255,7 +255,7 @@ public class PackFile implements Iterable<PackFileItem>
       GitObject gitObject = objectsBySha.get (packFileItem.getRefSha1 ());
 
       assert gitObject != null;
-      assert packFileItem.getSrcSize () == gitObject.data.length;
+      assert packFileItem.getSrcSize () == gitObject.buffer.length;
 
       packFileItem.setRefObject (gitObject);
     }

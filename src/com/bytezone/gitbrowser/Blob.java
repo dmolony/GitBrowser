@@ -23,7 +23,7 @@ public final class Blob extends GitObject
     text.append ("%n%s%n".formatted (LINE));
 
     if (contents == null)
-      contents = new String (data);
+      contents = new String (buffer);
 
     text.append (contents);
 

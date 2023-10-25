@@ -5,40 +5,17 @@ The documentation on the web is not entirely accurate.
 ```
 Project .... GitBrowser
 
-Objects ....      25
-Commits ....       4
-Trees ......      16
-Blobs ......       5
+Objects ....      87
+Commits ....      19
+Trees ......      42
+Blobs ......      26
 Tags .......       0
 Packfiles ..       1
 
-Ndx   SHA-1   Type      Length
----   ------  ------  --------
-  0   6f2367  TREE          30
-  1   116c25  TREE          35
-  2   8926d1  TREE          67
-  3   87b722  COMMIT       268
-  4   9f2917  TREE          35
-  5   9fccb0  COMMIT       278
-  6   00b59e  TREE          30
-  7   360d35  BLOB          89
-  8   5d314f  TREE         496
-  9   96d1bf  TREE          37
- 10   549979  TREE          30
- 11   53504d  TREE          37
- 12   397f66  TREE         496
- 13   908198  TREE          37
- 14   a0f767  BLOB       6,224
- 15   ef3518  TREE          67
- 16   c324d7  TREE          30
- 17   f90b9f  BLOB       6,228
- 18   fa0a59  COMMIT       258
- 19   c54984  COMMIT       254
- 20   79033f  TREE          30
- 21   76fe7d  BLOB       2,820
- 22   1cfc45  BLOB       6,271
- 23   47900e  TREE          35
- 24   78a9e9  TREE         496
+Ndx  SHA-1   Type      Length
+---  ------  ------  --------
+  0  3ea331  COMMIT       252  
+  1  57e052  COMMIT       249  
 
 Pack: a5c6628afc0b0a3981e47a2ced178e64ba19cb93
 
