@@ -25,7 +25,7 @@ public class TreeItem
       String contents = new String (buffer, start, ptr - start, "UTF-8");
       int pos = contents.indexOf (' ');
       permissions = contents.substring (0, pos);
-      name = contents.substring (pos + 1);
+      name = contents.substring (pos + 1).trim ();
       sha1 = Utility.getSha1 (buffer, ptr);
     }
     catch (UnsupportedEncodingException e)
