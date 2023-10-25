@@ -240,7 +240,10 @@ Ndx  SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize
  15  F7B759  Ofs Dlt    8,470      514      703    2,447    1,600
  16  D412D6  Ofs Dlt    8,798      676    6,149   11,967    1,546
  17  B6A3DE  Blob       9,207    4,629  
-
+ ```
+## Rebuilding a packed delta file
+ Object 14120B refers to FA665C which refers to 07B8DF.
+ ```
 14120B  BLOB       1,242
 ------------------------------------------------------------
 package com.bytezone.gitbrowser;
