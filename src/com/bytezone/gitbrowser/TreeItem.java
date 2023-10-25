@@ -6,10 +6,10 @@ import java.io.UnsupportedEncodingException;
 public class TreeItem
 // -----------------------------------------------------------------------------------//
 {
-  String sha1;
-  String permissions;
-  String name;
-  int length;
+  final String sha1;
+  final String permissions;
+  final String name;
+  final int length;
 
   // ---------------------------------------------------------------------------------//
   public TreeItem (byte[] buffer, int ptr)
@@ -17,23 +17,32 @@ public class TreeItem
   {
     int start = ptr;
 
-    while (buffer[ptr++] != 0)
-      ;
+    while (buffer[ptr] != 0)
+      ptr++;
 
+    String contents = getString (buffer, start, ptr - start);
+    int pos = contents.indexOf (' ');
+
+    permissions = contents.substring (0, pos);
+    name = contents.substring (pos + 1);
+
+    sha1 = Utility.getSha1 (buffer, ptr + 1);
+    length = ptr - start + 21;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private String getString (byte[] buffer, int offset, int length)
+  // ---------------------------------------------------------------------------------//
+  {
     try
     {
-      String contents = new String (buffer, start, ptr - start, "UTF-8");
-      int pos = contents.indexOf (' ');
-      permissions = contents.substring (0, pos);
-      name = contents.substring (pos + 1).trim ();
-      sha1 = Utility.getSha1 (buffer, ptr);
+      return new String (buffer, offset, length, "UTF-8");
     }
     catch (UnsupportedEncodingException e)
     {
       e.printStackTrace ();
+      return "";
     }
-
-    length = ptr + 20 - start;
   }
 
   // ---------------------------------------------------------------------------------//

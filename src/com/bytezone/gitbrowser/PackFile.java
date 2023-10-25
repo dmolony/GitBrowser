@@ -18,12 +18,12 @@ public class PackFile implements Iterable<PackFileItem>
   static String[] typesText =
       { "???", "Commit", "Tree", "Blob", "Tag", "???", "Ofs Dlt", "Ref Dlt" };
 
-  File indexFile;
-  File packFile;
-  File revFile;
+  private File indexFile;
+  private File packFile;
+  private File revFile;
 
-  List<PackFileItem> packFileItems = new ArrayList<> ();
-  List<IndexFileItem> indexFileItems = new ArrayList<> ();
+  private List<PackFileItem> packFileItems = new ArrayList<> ();
+  private List<IndexFileItem> indexFileItems = new ArrayList<> ();
 
   Map<Long, PackFileItem> offsetListPackFile = new TreeMap<> ();
   Map<Long, IndexFileItem> indexList = new TreeMap<> ();
@@ -227,6 +227,13 @@ public class PackFile implements Iterable<PackFileItem>
     int pos2 = fileName.lastIndexOf ('.');
 
     return fileName.substring (pos1 + 1, pos2);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  PackFileItem getPackFileItem (int index)
+  // ---------------------------------------------------------------------------------//
+  {
+    return packFileItems.get (index);
   }
 
   // ---------------------------------------------------------------------------------//

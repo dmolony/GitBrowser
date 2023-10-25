@@ -4,38 +4,35 @@
 ```
 Project .... GitBrowser
 
-Objects ....     196
-Commits ....      56
-Trees ......      78
-Blobs ......      62
+Objects ....     210
+Commits ....      59
+Trees ......      85
+Blobs ......      66
 Tags .......       0
 Packfiles ..       1
 
 Ndx  SHA-1   Type      Length
 ---  ------  ------  --------
-  0  618cbd  COMMIT       246  
-  1  0d0ccd  TREE          30  
-  2  0dff4e  TREE          67  
-  3  952f3a  TREE          67  
-  4  9205b5  COMMIT       255  
-...
-...
-...
-181  71f965  BLOB       1,294  README.md
-182  76597c  BLOB       3,810  README.md
-183  76fe7d  BLOB       2,820  GitObject.java
-184  1cfc45  BLOB       6,271  GitBrowser.java
-185  1ccd24  COMMIT       246  
-186  49d0ba  TREE          67  
-187  49d306  BLOB         252  README.md
-188  406bd3  COMMIT       246  
-189  2b8934  BLOB         196  README.md
-190  47900e  TREE          35  
-191  78a9e9  TREE         496  
-192  786e95  COMMIT       251  
-193  7fb9c5  TREE          67  
-194  7ffeef  COMMIT       246  
-195  25f33d  TREE          67  
+  0  00b59e  TREE          30  
+  1  010657  BLOB       3,334  README.md
+  2  05c8cd  COMMIT       246  
+  3  074397  COMMIT       246  
+  4  07f403  COMMIT       261  
+  5  08cb83  TREE          67  
+  6  08f2c9  BLOB       8,245  PackFile.java
+ ...
+ ...
+ ...
+200  f55a8e  COMMIT       246  
+201  f5c924  BLOB       1,260  IndexFileItem.java
+202  f66819  TREE          67  
+203  f8ae9e  BLOB       3,614  README.md
+204  f90b9f  BLOB       6,228  GitBrowser.java
+205  f9a33a  BLOB         513  README.md
+206  fa0a59  COMMIT       258  
+207  fb1158  BLOB         195  README.md
+208  fd42fd  BLOB         201  README.md
+209  ffe61e  BLOB       7,968  GitBrowser.java  
 
 Pack: a5c6628afc0b0a3981e47a2ced178e64ba19cb93
 

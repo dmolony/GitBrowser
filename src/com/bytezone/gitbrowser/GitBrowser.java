@@ -82,11 +82,11 @@ public class GitBrowser
       System.out.println ("Ndx  SHA-1   Type      Length");
       System.out.println ("---  ------  ------  --------");
 
-      for (int i = 0; i < objects.size (); i++)
+      int count = 0;
+      for (GitObject object : objectsBySha.values ())
       {
-        GitObject object = objects.get (i);
-        String name = namesBySha.get (object.getSha ().toUpperCase ());
-        System.out.printf ("%3d  %s  %s%n", i, object,
+        String name = namesBySha.get (object.getSha ());
+        System.out.printf ("%3d  %s  %s%n", count++, object,
             object.getObjectType () == ObjectType.BLOB ? name : "");
       }
     }
@@ -102,8 +102,9 @@ public class GitBrowser
         System.out.println (
             "---  ------  -------  -------  -------  -------  -------  -------");
 
-        for (int i = 0; i < packFile.totFiles; i++)
-          System.out.printf ("%3d  %s%n", i, packFile.packFileItems.get (i));
+        int count = 0;
+        for (PackFileItem packFileItem : packFile)
+          System.out.printf ("%3d  %s%n", count++, packFileItem);
       }
   }
 
@@ -113,8 +114,10 @@ public class GitBrowser
   {
     int[] totals = new int[8];
 
-    for (int i = 0; i < packFile.totFiles; i++)
-      totals[packFile.packFileItems.get (i).getType ()]++;
+    //    for (int i = 0; i < packFile.totFiles; i++)
+    //      totals[packFile.packFileItems.get (i).getType ()]++;
+    for (PackFileItem packFileItem : packFile)
+      totals[packFileItem.getType ()]++;
 
     System.out.printf ("Objects .... %,7d%n", packFile.totFiles);
     System.out.printf ("Commits .... %,7d%n", totals[1]);
@@ -145,11 +148,10 @@ public class GitBrowser
   void displayPackObject (int packNo, int index)
   // ---------------------------------------------------------------------------------//
   {
-    PackFileItem packFileItem = packFiles.get (packNo).packFileItems.get (index);
+    PackFileItem packFileItem = packFiles.get (packNo).getPackFileItem (index);
+    GitObject object = packFileItem.getObject ();
 
     System.out.println ();
-    GitObject object = packFileItem.getObject ();
-    //    System.out.println (object);
     System.out.println (object.getText ());
   }
 

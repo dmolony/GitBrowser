@@ -57,8 +57,6 @@ public class Utility
     }
 
     return value;
-    //    return (buffer[ptr] & 0xFF) * 0x1000000 + (buffer[ptr + 1] & 0xFF) * 0x10000
-    //        + (buffer[ptr + 2] & 0xFF) * 0x100 + (buffer[ptr + 3] & 0xFF);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -71,8 +69,7 @@ public class Utility
       value <<= 8;
       value |= buffer[ptr++] & 0xFF;
     }
-    //    return (buffer[ptr] & 0xFF) * 0x1000000 + (buffer[ptr + 1] & 0xFF) * 0x10000
-    //        + (buffer[ptr + 2] & 0xFF) * 0x100 + (buffer[ptr + 3] & 0xFF);
+
     return value;
   }
 
@@ -83,7 +80,7 @@ public class Utility
     StringBuilder text = new StringBuilder ();
 
     for (int i = 0; i < 20; i++)
-      text.append (String.format ("%02X", buffer[offset++]));
+      text.append (String.format ("%02x", buffer[offset++]));
 
     return text.toString ();
   }
