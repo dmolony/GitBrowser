@@ -17,6 +17,8 @@ public class GitBrowser
   private final List<PackFile> packFiles = new ArrayList<> ();
   private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
   private final Map<String, String> namesBySha = new TreeMap<> ();
+  private final Map<String, GitObject> packObjectsBySha = new TreeMap<> ();
+  private final Map<String, String> packNamesBySha = new TreeMap<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitBrowser () throws FileNotFoundException
@@ -37,14 +39,19 @@ public class GitBrowser
         for (File file : parentFolder.listFiles ())
         {
           GitObject object = GitObjectFactory.getObject (parentFolder, file);
-          objects.add (object);
           objectsBySha.put (object.getSha (), object);
 
+          // store file and folder names
           if (object.getObjectType () == ObjectType.TREE)
-            doTree ((Tree) object);
+            for (TreeItem treeItem : ((Tree) object))
+              namesBySha.put (treeItem.sha1, treeItem.name);
           else if (object.getObjectType () == ObjectType.COMMIT)
-            doCommit ((Commit) object);
+            namesBySha.put (((Commit) object).getTreeSha (), "root");
         }
+
+    // allow access by index
+    for (GitObject object : objectsBySha.values ())
+      objects.add (object);
 
     File packFolder = new File (path + "/pack");
     if (packFolder.exists ())
@@ -52,11 +59,11 @@ public class GitBrowser
 
     displayTotals (project);
 
-    //    displayObject (0);
+    //    displayObject (211);
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
     //    for (int i = 1; i <= 6; i++)
     //      displayPackObject (0, i);
-    displayPackObject (0, 11);
+    //    displayPackObject (0, 11);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -79,15 +86,14 @@ public class GitBrowser
     if (true)
     {
       System.out.println ();
-      System.out.println ("Ndx  SHA-1   Type      Length");
-      System.out.println ("---  ------  ------  --------");
+      System.out.println ("Ndx  SHA-1   Type      Length  Name");
+      System.out.println ("---  ------  ------  --------  ----------------------------");
 
       int count = 0;
       for (GitObject object : objectsBySha.values ())
       {
         String name = namesBySha.get (object.getSha ());
-        System.out.printf ("%3d  %s  %s%n", count++, object,
-            object.getObjectType () == ObjectType.BLOB ? name : "");
+        System.out.printf ("%3d  %s  %s%n", count++, object, name == null ? "" : name);
       }
     }
 
@@ -97,14 +103,16 @@ public class GitBrowser
         System.out.printf ("%nPack: %s%n%n", packFile.packFileSha1);
         displayPackTotals (packFile);
         System.out.println ();
-        System.out.println (
-            "Ndx  SHA-1   Type      Offset  DstSize  RefOfst  SrcSize  DstSize");
-        System.out.println (
-            "---  ------  -------  -------  -------  -------  -------  -------");
+        System.out.println ("Ndx  SHA-1   Type       Length  Name");
+        System.out.println ("---  ------  -------  --------  -------------------------");
 
         int count = 0;
         for (PackFileItem packFileItem : packFile)
-          System.out.printf ("%3d  %s%n", count++, packFileItem);
+        {
+          String name = packNamesBySha.get (packFileItem.getSha1 ());
+          System.out.printf ("%3d  %s  %s%n", count++, packFileItem,
+              name == null ? "" : name);
+        }
       }
   }
 
@@ -114,8 +122,6 @@ public class GitBrowser
   {
     int[] totals = new int[8];
 
-    //    for (int i = 0; i < packFile.totFiles; i++)
-    //      totals[packFile.packFileItems.get (i).getType ()]++;
     for (PackFileItem packFileItem : packFile)
       totals[packFileItem.getType ()]++;
 
@@ -174,6 +180,12 @@ public class GitBrowser
       else if (!file.getName ().endsWith (".idx"))
         System.out.printf ("Unknown file : %s%n", file.getName ());
     }
+
+    for (PackFile packFile : packFiles)
+      for (PackFileItem packFileItem : packFile)
+        if (packFileItem.getBaseType () == 2)
+          for (TreeItem treeItem : (Tree) packFileItem.getObject ())
+            packNamesBySha.put (treeItem.sha1, treeItem.name);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -185,21 +197,6 @@ public class GitBrowser
         return packFile;
 
     return null;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  private void doTree (Tree tree)
-  // ---------------------------------------------------------------------------------//
-  {
-    for (TreeItem treeItem : tree)
-      namesBySha.put (treeItem.sha1, treeItem.name);
-  }
-
-  // ---------------------------------------------------------------------------------//
-  private void doCommit (Commit commit)
-  // ---------------------------------------------------------------------------------//
-  {
-    namesBySha.put (commit.getTreeSha (), "root");
   }
 
   // ---------------------------------------------------------------------------------//

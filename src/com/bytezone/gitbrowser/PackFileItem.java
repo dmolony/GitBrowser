@@ -357,16 +357,19 @@ public class PackFileItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    String deltaRefDetails = "";
+    return String.format ("%-6.6s  %-7s  %,8d", sha1, typesText[header.type],
+        header.value);
 
-    if (header.type == 6)
-      deltaRefDetails = String.format ("%,7d  %,7d  %,7d", refDeltaOffset, srcSize.value,
-          dstSize.value);
-    else if (header.type == 7)
-      deltaRefDetails =
-          String.format ("%7.7s  %,7d  %,7d", refDeltaSha1, srcSize.value, dstSize.value);
-
-    return String.format ("%-6.6s  %-7s  %,7d  %,7d  %s", sha1, typesText[header.type],
-        header.offset, header.value, deltaRefDetails);
+    //    String deltaRefDetails = "";
+    //
+    //    if (header.type == 6)
+    //      deltaRefDetails = String.format ("%,7d  %,7d  %,7d", refDeltaOffset, srcSize.value,
+    //          dstSize.value);
+    //    else if (header.type == 7)
+    //      deltaRefDetails =
+    //          String.format ("%7.7s  %,7d  %,7d", refDeltaSha1, srcSize.value, dstSize.value);
+    //
+    //    return String.format ("%-6.6s  %-7s  %,7d  %,7d  %s", sha1, typesText[header.type],
+    //        header.offset, header.value, deltaRefDetails);
   }
 }
