@@ -17,7 +17,7 @@ public class GitBrowser
   private final List<PackFile> packFiles = new ArrayList<> ();
   private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
   private final Map<String, String> namesBySha = new TreeMap<> ();
-  private final Map<String, GitObject> packObjectsBySha = new TreeMap<> ();
+  private final Map<String, PackFileItem> packItemsBySha = new TreeMap<> ();
   private final Map<String, String> packNamesBySha = new TreeMap<> ();
 
   // ---------------------------------------------------------------------------------//
@@ -103,11 +103,12 @@ public class GitBrowser
         System.out.printf ("%nPack: %s%n%n", packFile.packFileSha1);
         displayPackTotals (packFile);
         System.out.println ();
-        System.out.println ("Ndx  SHA-1   Type       Length  Name");
-        System.out.println ("---  ------  -------  --------  -------------------------");
+        System.out.println ("Ndx  SHA-1   Type     Link      Length  Name");
+        System.out.println (
+            "---  ------  -------  ------  --------  -------------------------");
 
         int count = 0;
-        for (PackFileItem packFileItem : packFile)
+        for (PackFileItem packFileItem : packItemsBySha.values ())
         {
           String name = packNamesBySha.get (packFileItem.getSha1 ());
           System.out.printf ("%3d  %s  %s%n", count++, packFileItem,
@@ -183,9 +184,13 @@ public class GitBrowser
 
     for (PackFile packFile : packFiles)
       for (PackFileItem packFileItem : packFile)
+      {
+        packItemsBySha.put (packFileItem.getSha1 (), packFileItem);
+        GitObject object = packFileItem.getObject ();
         if (packFileItem.getBaseType () == 2)
-          for (TreeItem treeItem : (Tree) packFileItem.getObject ())
+          for (TreeItem treeItem : (Tree) object)
             packNamesBySha.put (treeItem.sha1, treeItem.name);
+      }
   }
 
   // ---------------------------------------------------------------------------------//

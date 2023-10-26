@@ -21,7 +21,7 @@ public final class Commit extends GitObject
     super (name, data, ObjectType.COMMIT);
 
     commitLines = split (data);
-    treeSha = skipFirst (commitLines.get (0)).toUpperCase ();
+    treeSha = skipFirst (commitLines.get (0));
 
     int lineNo = 0;
     for (String line : commitLines)

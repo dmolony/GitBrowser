@@ -51,26 +51,26 @@ Tags .......       0
 Delta ofs ..       6
 Delta ref ..       0
 
-Ndx  SHA-1   Type       Length  Name
----  ------  -------  --------  -------------------------
-  0  07b8df  Blob        2,447  Commit.java
-  1  14120b  Ofs Dlt       401  IndexFileItem.java
-  2  295cec  Ofs Dlt       193  Blob.java
-  3  6dd3da  Tree           30  src
-  4  9bc8c0  Blob       11,967  PackFileItem.java
-  5  a05498  Blob        2,012  GitObjectFactory.java
-  6  ab9288  Tree           37  bytezone
-  7  b6a3de  Blob        4,629  Utility.java
-  8  b7981c  Commit        209  
-  9  c39b23  Tree           30  
- 10  c7bda9  Blob        6,230  GitBrowser.java
- 11  d412d6  Ofs Dlt       676  TreeItem.java
- 12  e7a84f  Tree           35  com
- 13  e7e8cc  Blob        7,714  PackFile.java
- 14  ef16de  Ofs Dlt       513  Tag.java
- 15  f7b759  Ofs Dlt       514  Tree.java
- 16  fa665c  Ofs Dlt     1,173  GitObject.java
- 17  fe4d35  Tree          496  gitbrowser    
+Ndx  SHA-1   Type     Link      Length  Name
+---  ------  -------  ------  --------  -------------------------
+  0  07b8df  Blob                2,447  Commit.java
+  1  14120b  Ofs Dlt  fa665c       401  IndexFileItem.java
+  2  295cec  Ofs Dlt  07b8df       193  Blob.java
+  3  6dd3da  Tree                   30  src
+  4  9bc8c0  Blob               11,967  PackFileItem.java
+  5  a05498  Blob                2,012  GitObjectFactory.java
+  6  ab9288  Tree                   37  bytezone
+  7  b6a3de  Blob                4,629  Utility.java
+  8  b7981c  Commit   c39b23       209  
+  9  c39b23  Tree                   30  
+ 10  c7bda9  Blob                6,230  GitBrowser.java
+ 11  d412d6  Ofs Dlt  9bc8c0       676  TreeItem.java
+ 12  e7a84f  Tree                   35  com
+ 13  e7e8cc  Blob                7,714  PackFile.java
+ 14  ef16de  Ofs Dlt  07b8df       513  Tag.java
+ 15  f7b759  Ofs Dlt  07b8df       514  Tree.java
+ 16  fa665c  Ofs Dlt  07b8df     1,173  GitObject.java
+ 17  fe4d35  Tree                  496  gitbrowser    
  ```
 ## Rebuilding a packed delta file
  Object 14120b refers to fa665c which refers to 07b8df.

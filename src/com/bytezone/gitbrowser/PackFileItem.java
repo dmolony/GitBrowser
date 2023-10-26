@@ -357,8 +357,19 @@ public class PackFileItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return String.format ("%-6.6s  %-7s  %,8d", sha1, typesText[header.type],
-        header.value);
+    String parent = switch (header.type)
+    {
+      case 1 -> ((Commit) getObject ()).getTreeSha ();
+      case 2 -> "";
+      case 3 -> "";
+      case 4 -> "";
+      case 6 -> baseOffsetItem.sha1;
+      case 7 -> refDeltaSha1;
+      default -> throw new IllegalArgumentException ("Unexpected value: " + header.type);
+    };
+
+    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d", sha1, typesText[header.type],
+        parent, header.value);
 
     //    String deltaRefDetails = "";
     //
