@@ -10,9 +10,10 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   static final String LINE =
       "------------------------------------------------------------";
 
-  protected final String name;
+  protected final String sha;
   protected final byte[] buffer;
   protected final ObjectType objectType;
+  protected String name;                        // added when known
 
   enum ObjectType
   {
@@ -20,10 +21,10 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   }
 
   // ---------------------------------------------------------------------------------//
-  public GitObject (String name, byte[] buffer, ObjectType objectType)
+  public GitObject (String sha, byte[] buffer, ObjectType objectType)
   // ---------------------------------------------------------------------------------//
   {
-    this.name = name;                     // sha string
+    this.sha = sha;
     this.buffer = buffer;
     this.objectType = objectType;
   }
@@ -36,7 +37,14 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   String getSha ()
   // ---------------------------------------------------------------------------------//
   {
-    return name;
+    return sha;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void setName (String name)
+  // ---------------------------------------------------------------------------------//
+  {
+    this.name = name;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -80,6 +88,7 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return String.format ("%-6.6s  %-6s  %,8d", name, objectType, buffer.length);
+    return String.format ("%-6.6s  %-6s  %,8d  %s", sha, objectType, buffer.length,
+        name == null ? "*** deleted ***" : name);
   }
 }

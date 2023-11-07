@@ -21,6 +21,7 @@ public class GitBrowser
 
   private final List<GitObject> objects = new ArrayList<> ();
   private final List<PackFile> packFiles = new ArrayList<> ();
+
   private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
   private final Map<String, String> namesBySha = new TreeMap<> ();
   private final Map<String, PackFileItem> packItemsBySha = new TreeMap<> ();
@@ -82,17 +83,22 @@ public class GitBrowser
       }
     }
 
-    // allow access by index
+    // allow access by index and link name
     for (GitObject object : objectsBySha.values ())
+    {
       objects.add (object);
+      if (namesBySha.containsKey (object.sha))
+        object.setName (namesBySha.get (object.sha));
+    }
 
     File packFolder = new File (path + "/pack");
     if (packFolder.exists ())
       addPackFiles (packFolder);
 
-    //    displayTotals (project);
+    displayTotals (project);
 
-    showCommit (4);
+    //    showCommit (114);           // GitBrowser
+    //    showCommit (4);           // LoadLister
 
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
     //    for (int i = 1; i <= 6; i++)
@@ -157,11 +163,7 @@ public class GitBrowser
 
       int count = 0;
       for (GitObject object : objectsBySha.values ())
-      {
-        String name = namesBySha.get (object.getSha ());
-        System.out.printf ("%3d  %s  %s%n", count++, object,
-            name == null ? "** deleted **" : name);
-      }
+        System.out.printf ("%3d  %s%n", count++, object);
     }
 
     if (true)
@@ -177,9 +179,9 @@ public class GitBrowser
         int count = 0;
         for (PackFileItem packFileItem : packItemsBySha.values ())
         {
-          String name = packNamesBySha.get (packFileItem.getSha1 ());
-          System.out.printf ("%3d  %s  %s%n", count++, packFileItem,
-              name == null ? "" : name);
+          //          String name = packNamesBySha.get (packFileItem.getSha1 ());
+          System.out.printf ("%3d  %s%n", count++, packFileItem);
+          //              name == null ? "" : name);
         }
       }
   }
@@ -271,6 +273,15 @@ public class GitBrowser
             break;
         }
       }
+
+    // allow access by index and link name
+    for (PackFileItem packFileItem : packItemsBySha.values ())
+    {
+      GitObject object = packFileItem.getObject ();
+      //      objects.add (object);
+      if (packNamesBySha.containsKey (object.getSha ()))
+        packFileItem.setName (packNamesBySha.get (object.getSha ()));
+    }
   }
 
   // ---------------------------------------------------------------------------------//

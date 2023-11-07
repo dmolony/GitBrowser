@@ -9,7 +9,7 @@ public class PackFileItem
 {
   static byte[] tempBuffer = new byte[65536];
   static String[] typesText =
-      { "???", "Commit", "Tree", "Blob", "Tag", "???", "Ofs Dlt", "Ref Dlt" };
+      { "???", "Commit", "Tree", "Blob", "Tag", "???", "OfsDlt", "RefDlt" };
 
   private final Header header;
   private final int offset;                 // unique identifier for this item
@@ -26,6 +26,9 @@ public class PackFileItem
   private PackFileItem baseOffsetItem;
   private String refDeltaSha1;
   private GitObject baseRefObject;
+
+  // added later
+  private String name;
 
   // ---------------------------------------------------------------------------------//
   public PackFileItem (byte[] buffer, int ptr) throws DataFormatException
@@ -134,6 +137,13 @@ public class PackFileItem
     assert ptr == dstSize.value;
 
     return buffer;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void setName (String name)
+  // ---------------------------------------------------------------------------------//
+  {
+    this.name = name;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -364,7 +374,7 @@ public class PackFileItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    String parent = switch (header.type)
+    String parentSha = switch (header.type)
     {
       case 1 -> ((Commit) getObject ()).getTreeSha ();
       case 2 -> "";
@@ -375,8 +385,8 @@ public class PackFileItem
       default -> throw new IllegalArgumentException ("Unexpected value: " + header.type);
     };
 
-    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d", sha1, typesText[header.type],
-        parent, header.value);
+    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d  %s", sha1, typesText[header.type],
+        parentSha, header.value, name);
 
     //    String deltaRefDetails = "";
     //
