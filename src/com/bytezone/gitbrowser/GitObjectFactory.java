@@ -36,7 +36,7 @@ public class GitObjectFactory
       decompresser.end ();
 
       int ptr = 0;
-      while (buffer[ptr++] != 0)
+      while (buffer[ptr++] != 0)            // find the first null
         ;
 
       String type = new String (buffer, 0, ptr - 1, "UTF-8");

@@ -57,6 +57,6 @@ public class TreeItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return "%-6.6s  %-7s  %s".formatted (sha1, permissions, name);
+    return "%-6.6s  %-6s  %s".formatted (sha1, permissions, name);
   }
 }

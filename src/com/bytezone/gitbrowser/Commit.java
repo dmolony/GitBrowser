@@ -9,10 +9,12 @@ public final class Commit extends GitObject
   private List<String> commitLines;
 
   private int parentIndex;                // 0, or last parent line
-  private int authorIndex;
+  //  private int authorIndex;
   private int committerIndex;
 
   private String treeSha;
+  private Action author;
+  private Action committer;
 
   // ---------------------------------------------------------------------------------//
   public Commit (String name, byte[] data)
@@ -29,10 +31,14 @@ public final class Commit extends GitObject
       if (line.startsWith ("parent"))             // could be 0, 1 or 2 of these
         parentIndex = lineNo;
       else if (line.startsWith ("author"))
-        authorIndex = lineNo;
+      {
+        //        authorIndex = lineNo;
+        author = new Action (line);
+      }
       else if (line.startsWith ("committer"))
       {
         committerIndex = lineNo;
+        committer = new Action (line);
         break;                        // following lines are the commit message
       }
 
@@ -55,6 +61,13 @@ public final class Commit extends GitObject
   }
 
   // ---------------------------------------------------------------------------------//
+  public String getFirstMessageLine ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return commitLines.get (committerIndex + 2);
+  }
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public String getText ()
   // ---------------------------------------------------------------------------------//
@@ -67,10 +80,8 @@ public final class Commit extends GitObject
     if (parentIndex > 0)
       for (int i = 1; i <= parentIndex; i++)
         text.append ("Parent ..... %6.6s%n".formatted (skipFirst (commitLines.get (i))));
-    text.append (
-        "Author ..... %s%n".formatted (skipFirst (commitLines.get (authorIndex))));
-    text.append (
-        "Committer .. %s%n".formatted (skipFirst (commitLines.get (committerIndex))));
+    text.append ("Author ..... %s%n".formatted (author));
+    text.append ("Committer .. %s%n".formatted (committer));
 
     for (int i = committerIndex + 1; i < commitLines.size (); i++)
       text.append ("%s%n".formatted (commitLines.get (i)));

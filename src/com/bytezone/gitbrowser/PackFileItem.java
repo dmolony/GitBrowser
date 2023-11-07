@@ -172,6 +172,13 @@ public class PackFileItem
   }
 
   // ---------------------------------------------------------------------------------//
+  String getTypeText ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return typesText[header.type];
+  }
+
+  // ---------------------------------------------------------------------------------//
   int getBaseType ()
   // ---------------------------------------------------------------------------------//
   {
@@ -247,7 +254,7 @@ public class PackFileItem
 
   // GIT: unpack_object_header_buffer()
   // ---------------------------------------------------------------------------------//
-  Header getHeader (byte[] buffer, int offset)
+  private Header getHeader (byte[] buffer, int offset)
   // ---------------------------------------------------------------------------------//
   {
     int ptr = offset;
@@ -269,7 +276,7 @@ public class PackFileItem
 
   // GIT: packfile.c get_delta_base()
   // ---------------------------------------------------------------------------------//
-  Size getBaseOffsetSize (byte[] buffer, int offset)
+  private Size getBaseOffsetSize (byte[] buffer, int offset)
   // ---------------------------------------------------------------------------------//
   {
     int ptr = offset;
@@ -287,7 +294,7 @@ public class PackFileItem
 
   // GIT: delta.h get_delta_hdr_size()
   // ---------------------------------------------------------------------------------//
-  Size getSize (byte[] buffer, int offset)
+  private Size getSize (byte[] buffer, int offset)
   // ---------------------------------------------------------------------------------//
   {
     int ptr = offset;
@@ -306,7 +313,7 @@ public class PackFileItem
   }
 
   // ---------------------------------------------------------------------------------//
-  CopyInstruction getCopyInstruction (byte[] buffer, int offset)
+  private CopyInstruction getCopyInstruction (byte[] buffer, int offset)
   // ---------------------------------------------------------------------------------//
   {
     int ptr = offset;

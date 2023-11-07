@@ -13,6 +13,12 @@ import com.bytezone.gitbrowser.GitObject.ObjectType;
 public class GitBrowser
 // -----------------------------------------------------------------------------------//
 {
+  private static final int COMMIT = 1;
+  private static final int TREE = 2;
+  private static final int BLOB = 3;
+  private static final int TAG = 4;
+  int[] totals = new int[4];
+
   private final List<GitObject> objects = new ArrayList<> ();
   private final List<PackFile> packFiles = new ArrayList<> ();
   private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
@@ -28,26 +34,53 @@ public class GitBrowser
     //    String project = "DiskTest";
     //    String project = "EnigmaMachine";
     //    String project = "AppleFormat";
-    String project = "GitBrowser";
+    //    String project = "GitBrowser";
+    //    String project = "Plexer";
+    //    String project = "VistaFob";
+    //    String project = "Dataset";
+    String project = "LoadLister";
+    //    String project = "BreadBoard";
 
     String home = System.getProperty ("user.home");
     String path = home + "/Documents/GitLocal/" + project + "/.git/objects";
     File gitObjectsFolder = new File (path);
 
-    for (File parentFolder : gitObjectsFolder.listFiles ())
-      if (parentFolder.getName ().length () == 2)
-        for (File file : parentFolder.listFiles ())
-        {
-          GitObject object = GitObjectFactory.getObject (parentFolder, file);
-          objectsBySha.put (object.getSha (), object);
+    if (!gitObjectsFolder.exists ())
+    {
+      System.out.println ("File not found: " + gitObjectsFolder.getAbsolutePath ());
+      System.exit (0);
+    }
 
-          // store file and folder names
-          if (object.getObjectType () == ObjectType.TREE)
+    for (File parentFolder : gitObjectsFolder.listFiles ())
+    {
+      if (parentFolder.getName ().length () != 2)
+        continue;
+
+      for (File file : parentFolder.listFiles ())
+      {
+        GitObject object = GitObjectFactory.getObject (parentFolder, file);
+        objectsBySha.put (object.getSha (), object);
+        totals[object.objectType.ordinal ()]++;
+
+        // store file and folder names
+        switch (object.getObjectType ())
+        {
+          case TREE:
             for (TreeItem treeItem : ((Tree) object))
               namesBySha.put (treeItem.sha1, treeItem.name);
-          else if (object.getObjectType () == ObjectType.COMMIT)
-            namesBySha.put (((Commit) object).getTreeSha (), "root");
+            break;
+
+          case COMMIT:
+            Commit commit = (Commit) object;
+            namesBySha.put (commit.getSha (), '"' + commit.getFirstMessageLine () + '"');
+            namesBySha.put (commit.getTreeSha (), project);
+            break;
+
+          case BLOB:
+          case TAG:
         }
+      }
+    }
 
     // allow access by index
     for (GitObject object : objectsBySha.values ())
@@ -57,9 +90,10 @@ public class GitBrowser
     if (packFolder.exists ())
       addPackFiles (packFolder);
 
-    displayTotals (project);
+    //    displayTotals (project);
 
-    //    displayObject (211);
+    showCommit (4);
+
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
     //    for (int i = 1; i <= 6; i++)
     //      displayPackObject (0, i);
@@ -67,14 +101,46 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
+  private void showCommit (int index)
+  // ---------------------------------------------------------------------------------//
+  {
+    GitObject commit = objects.get (index);
+    if (commit.getObjectType () != ObjectType.COMMIT)
+    {
+      System.out.println ("Not a COMMIT");
+      return;
+    }
+
+    System.out.println (commit.getText ());
+    showTree ((Tree) objectsBySha.get (((Commit) commit).getTreeSha ()));
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void showTree (Tree tree)
+  // ---------------------------------------------------------------------------------//
+  {
+    //    displayObject (tree.getSha ());
+    System.out.println ();
+    System.out.println (objectsBySha.get (tree.getSha ()).getText ());
+
+    for (TreeItem treeItem : tree)
+    {
+      GitObject object = objectsBySha.get (treeItem.sha1);
+      if (object == null)
+      {
+        PackFileItem packFileItem = packItemsBySha.get (treeItem.sha1);
+        System.out.printf ("%6.6s  %-6s  %s%n", packFileItem.getSha1 (),
+            packFileItem.getTypeText (), treeItem.name);
+      }
+      else if (object.getObjectType () == ObjectType.TREE)
+        showTree ((Tree) object);                               // recursion
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
   void displayTotals (String project)
   // ---------------------------------------------------------------------------------//
   {
-    int[] totals = new int[4];
-
-    for (GitObject gitObject : objects)
-      totals[gitObject.objectType.ordinal ()]++;
-
     System.out.printf ("Project .... %s%n%n", project);
     System.out.printf ("Objects .... %,7d%n", objects.size ());
     System.out.printf ("Commits .... %,7d%n", totals[0]);
@@ -86,14 +152,15 @@ public class GitBrowser
     if (true)
     {
       System.out.println ();
-      System.out.println ("Ndx  SHA-1   Type      Length  Name");
+      System.out.println ("Ndx  SHA-1   Type      Length  Filename/Folder/Message");
       System.out.println ("---  ------  ------  --------  ----------------------------");
 
       int count = 0;
       for (GitObject object : objectsBySha.values ())
       {
         String name = namesBySha.get (object.getSha ());
-        System.out.printf ("%3d  %s  %s%n", count++, object, name == null ? "" : name);
+        System.out.printf ("%3d  %s  %s%n", count++, object,
+            name == null ? "** deleted **" : name);
       }
     }
 
@@ -172,6 +239,7 @@ public class GitBrowser
       if (file.getName ().endsWith (".idx"))
         packFiles.add (new PackFile (file, objectsBySha));
 
+    // add pack and reverse files
     for (File file : parentFolder.listFiles ())
     {
       if (file.getName ().endsWith (".pack"))
@@ -182,14 +250,26 @@ public class GitBrowser
         System.out.printf ("Unknown file : %s%n", file.getName ());
     }
 
+    // create SHA mappings
     for (PackFile packFile : packFiles)
       for (PackFileItem packFileItem : packFile)
       {
         packItemsBySha.put (packFileItem.getSha1 (), packFileItem);
         GitObject object = packFileItem.getObject ();
-        if (packFileItem.getBaseType () == 2)
-          for (TreeItem treeItem : (Tree) object)
-            packNamesBySha.put (treeItem.sha1, treeItem.name);
+
+        switch (packFileItem.getBaseType ())
+        {
+          case TREE:
+            for (TreeItem treeItem : (Tree) object)
+              packNamesBySha.put (treeItem.sha1, treeItem.name);
+            break;
+
+          case COMMIT:
+            Commit commit = (Commit) object;
+            packNamesBySha.put (commit.getSha (),
+                '"' + commit.getFirstMessageLine () + '"');
+            break;
+        }
       }
   }
 
