@@ -386,18 +386,6 @@ public class PackFileItem
     };
 
     return String.format ("%-6.6s  %-7s  %-6.6s  %,8d  %s", sha1, typesText[header.type],
-        parentSha, header.value, name);
-
-    //    String deltaRefDetails = "";
-    //
-    //    if (header.type == 6)
-    //      deltaRefDetails = String.format ("%,7d  %,7d  %,7d", refDeltaOffset, srcSize.value,
-    //          dstSize.value);
-    //    else if (header.type == 7)
-    //      deltaRefDetails =
-    //          String.format ("%7.7s  %,7d  %,7d", refDeltaSha1, srcSize.value, dstSize.value);
-    //
-    //    return String.format ("%-6.6s  %-7s  %,7d  %,7d  %s", sha1, typesText[header.type],
-    //        header.offset, header.value, deltaRefDetails);
+        parentSha, header.value, name == null ? "*** deleted ***" : name);
   }
 }
