@@ -113,3 +113,47 @@ public class IndexFileItem implements Comparable<IndexFileItem>
   }
 }
 ```
+## Displaying the full Commit
+```
+7341d6  COMMIT       264  "walk the commit object"
+------------------------------------------------------------
+Tree ....... 40745c
+Parent ..... b55f6b
+Author ..... Denis Molony  2023-11-07 15:43
+Committer .. Denis Molony  2023-11-07 15:43
+
+walk the commit object
+
+40745c  TREE          67  GitBrowser
+------------------------------------------------------------
+0d9d0f  100644  README.md
+1879f6  40000   src
+
+1879f6  TREE          30  src
+------------------------------------------------------------
+dab66e  40000   com
+
+dab66e  TREE          35  com
+------------------------------------------------------------
+35e075  40000   bytezone
+
+35e075  TREE          37  bytezone
+------------------------------------------------------------
+887bbc  40000   gitbrowser
+
+887bbc  TREE         535  gitbrowser
+------------------------------------------------------------
+96ae46  100644  Action.java
+9c8731  100644  Blob.java
+69a007  100644  Commit.java
+059287  100644  GitBrowser.java
+53218a  100644  GitObject.java
+cb249e  100644  GitObjectFactory.java
+f5c924  100644  IndexFileItem.java
+4b7332  100644  PackFile.java
+f71b68  100644  PackFileItem.java
+ef16de  100644  Tag.java
+f7b759  100644  Tree.java
+56922e  100644  TreeItem.java
+40f730  100644  Utility.java
+```
