@@ -9,7 +9,6 @@ public final class Commit extends GitObject
   private List<String> commitLines;
 
   private int parentIndex;                // 0, or last parent line
-  //  private int authorIndex;
   private int committerIndex;
 
   private String treeSha;

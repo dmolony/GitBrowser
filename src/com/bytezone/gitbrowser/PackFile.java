@@ -158,7 +158,7 @@ public class PackFile implements Iterable<PackFileItem>
         offsetListPackFile.put ((long) ptr, packFileItem);
         ptr += packFileItem.getRawLength ();
 
-        packFileItem.setSha1 (indexList.get (packFileItem.getOffset ()).sha1);
+        packFileItem.setSha (indexList.get (packFileItem.getOffset ()).sha1);
 
         if (packFileItem.isTypeDelta ())
           updateDeltaRef (packFileItem);
@@ -257,9 +257,9 @@ public class PackFile implements Iterable<PackFileItem>
 
       packFileItem.setRefObject (basePackFileItem);
     }
-    else if (packFileItem.getType () == 7)
+    else if (packFileItem.getType () == 7)        // not yet tested
     {
-      GitObject gitObject = objectsBySha.get (packFileItem.getRefSha1 ());
+      GitObject gitObject = objectsBySha.get (packFileItem.getRefSha ());
 
       assert gitObject != null;
       assert packFileItem.getSrcSize () == gitObject.buffer.length;

@@ -16,7 +16,7 @@ public class PackFileItem
   private int rawLength;
 
   private byte[] data;                      // unpacked data
-  private String sha1;                      // sha1 value stored in the index
+  private String sha;                       // sha1 value stored in the index
   private GitObject gitObject;              // create as required
 
   // delta information
@@ -24,11 +24,8 @@ public class PackFileItem
   private Size dstSize;
   private long refDeltaOffset;
   private PackFileItem baseOffsetItem;
-  private String refDeltaSha1;
+  private String refDeltaSha;
   private GitObject baseRefObject;
-
-  // added later
-  private String name;
 
   // ---------------------------------------------------------------------------------//
   public PackFileItem (byte[] buffer, int ptr) throws DataFormatException
@@ -47,7 +44,7 @@ public class PackFileItem
     }
     else if (header.type == 7)                // OBJ_REF_DELTA
     {
-      refDeltaSha1 = Utility.getSha1 (buffer, ptr);
+      refDeltaSha = Utility.getSha1 (buffer, ptr);
       ptr += 20;
     }
 
@@ -80,10 +77,10 @@ public class PackFileItem
       byte[] buffer = getBuffer ();
       gitObject = switch (getBaseType ())
       {
-        case 1 -> new Commit (sha1, buffer);
-        case 2 -> new Tree (sha1, buffer);
-        case 3 -> new Blob (sha1, buffer);
-        case 4 -> new Tag (sha1, buffer);
+        case 1 -> new Commit (sha, buffer);
+        case 2 -> new Tree (sha, buffer);
+        case 3 -> new Blob (sha, buffer);
+        case 4 -> new Tag (sha, buffer);
         default -> null;
       };
     }
@@ -140,24 +137,17 @@ public class PackFileItem
   }
 
   // ---------------------------------------------------------------------------------//
-  void setName (String name)
+  void setSha (String sha)
   // ---------------------------------------------------------------------------------//
   {
-    this.name = name;
+    this.sha = sha;
   }
 
   // ---------------------------------------------------------------------------------//
-  void setSha1 (String sha1)
+  String getSha ()
   // ---------------------------------------------------------------------------------//
   {
-    this.sha1 = sha1;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  String getSha1 ()
-  // ---------------------------------------------------------------------------------//
-  {
-    return sha1;
+    return sha;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -238,10 +228,10 @@ public class PackFileItem
   }
 
   // ---------------------------------------------------------------------------------//
-  String getRefSha1 ()
+  String getRefSha ()
   // ---------------------------------------------------------------------------------//
   {
-    return refDeltaSha1;              // external object referenced by OBJ_REF_DELTA
+    return refDeltaSha;               // external object referenced by OBJ_REF_DELTA
   }
 
   // ---------------------------------------------------------------------------------//
@@ -374,18 +364,20 @@ public class PackFileItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
+    GitObject object = getObject ();
+
     String parentSha = switch (header.type)
     {
-      case 1 -> ((Commit) getObject ()).getTreeSha ();
+      case 1 -> ((Commit) object).getTreeSha ();
       case 2 -> "";
       case 3 -> "";
       case 4 -> "";
-      case 6 -> baseOffsetItem.sha1;
-      case 7 -> refDeltaSha1;
+      case 6 -> baseOffsetItem.sha;
+      case 7 -> refDeltaSha;
       default -> throw new IllegalArgumentException ("Unexpected value: " + header.type);
     };
 
-    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d  %s", sha1, typesText[header.type],
-        parentSha, header.value, name == null ? "*** deleted ***" : name);
+    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d  %s", sha, typesText[header.type],
+        parentSha, header.value, object.name == null ? "*** deleted ***" : object.name);
   }
 }

@@ -23,9 +23,7 @@ public class GitBrowser
   private final List<PackFile> packFiles = new ArrayList<> ();
 
   private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
-  private final Map<String, String> namesBySha = new TreeMap<> ();
   private final Map<String, PackFileItem> packItemsBySha = new TreeMap<> ();
-  private final Map<String, String> packNamesBySha = new TreeMap<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitBrowser () throws FileNotFoundException
@@ -51,6 +49,8 @@ public class GitBrowser
       System.out.println ("File not found: " + gitObjectsFolder.getAbsolutePath ());
       System.exit (0);
     }
+
+    final Map<String, String> namesBySha = new TreeMap<> ();
 
     for (File parentFolder : gitObjectsFolder.listFiles ())
     {
@@ -87,8 +87,10 @@ public class GitBrowser
     for (GitObject object : objectsBySha.values ())
     {
       objects.add (object);
-      if (namesBySha.containsKey (object.sha))
-        object.setName (namesBySha.get (object.sha));
+      if (namesBySha.containsKey (object.getSha ()))
+        object.setName (namesBySha.get (object.getSha ()));
+      //      else
+      //        System.out.printf ("SHA - %s has no name%n", object.getSha ());
     }
 
     File packFolder = new File (path + "/pack");
@@ -98,7 +100,7 @@ public class GitBrowser
     displayTotals (project);
 
     //    showCommit (114);           // GitBrowser
-    //    showCommit (4);           // LoadLister
+    showCommit (195);           // LoadLister
 
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
     //    for (int i = 1; i <= 6; i++)
@@ -135,7 +137,7 @@ public class GitBrowser
       if (object == null)
       {
         PackFileItem packFileItem = packItemsBySha.get (treeItem.sha1);
-        System.out.printf ("%6.6s  %-6s  %s%n", packFileItem.getSha1 (),
+        System.out.printf ("%6.6s  %-6s  %s%n", packFileItem.getSha (),
             packFileItem.getTypeText (), treeItem.name);
       }
       else if (object.getObjectType () == ObjectType.TREE)
@@ -205,7 +207,7 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
-  void displayObject (String sha)
+  private void displayObject (String sha)
   // ---------------------------------------------------------------------------------//
   {
     System.out.println ();
@@ -213,7 +215,7 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
-  void displayObject (int index)
+  private void displayObject (int index)
   // ---------------------------------------------------------------------------------//
   {
     System.out.println ();
@@ -221,7 +223,7 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
-  void displayPackObject (int packNo, int index)
+  private void displayPackObject (int packNo, int index)
   // ---------------------------------------------------------------------------------//
   {
     PackFileItem packFileItem = packFiles.get (packNo).getPackFileItem (index);
@@ -252,12 +254,18 @@ public class GitBrowser
         System.out.printf ("Unknown file : %s%n", file.getName ());
     }
 
+    final Map<String, String> packNamesBySha = new TreeMap<> ();
+
     // create SHA mappings
     for (PackFile packFile : packFiles)
       for (PackFileItem packFileItem : packFile)
       {
-        packItemsBySha.put (packFileItem.getSha1 (), packFileItem);
+        packItemsBySha.put (packFileItem.getSha (), packFileItem);
         GitObject object = packFileItem.getObject ();
+
+        objects.add (object);
+        objectsBySha.put (object.getSha (), object);
+        totals[object.objectType.ordinal ()]++;
 
         switch (packFileItem.getBaseType ())
         {
@@ -280,7 +288,7 @@ public class GitBrowser
       GitObject object = packFileItem.getObject ();
       //      objects.add (object);
       if (packNamesBySha.containsKey (object.getSha ()))
-        packFileItem.setName (packNamesBySha.get (object.getSha ()));
+        object.setName (packNamesBySha.get (object.getSha ()));
     }
   }
 
