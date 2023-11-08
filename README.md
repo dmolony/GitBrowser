@@ -40,7 +40,9 @@ Ndx  SHA-1   Type      Length  Name
 221  fb1158  BLOB         195  README.md
 222  fd42fd  BLOB         201  README.md
 223  ffe61e  BLOB       7,968  GitBrowser.java
-
+```
+## Pack File Contents
+```
 Pack: a5c6628afc0b0a3981e47a2ced178e64ba19cb93
 
 Objects ....      18
