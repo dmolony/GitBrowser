@@ -33,8 +33,8 @@ public class GitBrowser
     //    String project = "DiskTest";
     //    String project = "EnigmaMachine";
     //    String project = "AppleFormat";
-    String project = "GitBrowser";
-    //    String project = "Plexer";
+    //    String project = "GitBrowser";
+    String project = "Plexer";
     //    String project = "VistaFob";
     //    String project = "Dataset";
     //    String project = "LoadLister";
@@ -86,23 +86,19 @@ public class GitBrowser
 
     File packFolder = new File (path + "/pack");
     if (packFolder.exists ())
-      addPackFiles (packFolder);
+      addPackFiles (project, packFolder);
 
-    // allow access by index and link name
+    // link name
     for (GitObject object : objectsBySha.values ())
-    {
-      //      objects.add (object);
       if (namesBySha.containsKey (object.getSha ()))
         object.setName (namesBySha.get (object.getSha ()));
-      //      else
-      //        System.out.printf ("SHA - %s has no name%n", object.getSha ());
-    }
 
-    displayTotals (project);
+    displayObjects (project);
 
     //    showCommit (114);           // GitBrowser
     //    showCommit (195);           // LoadLister
-    showCommit (112);           // GitBrowser
+    //    showCommit (296);           // GitBrowser
+    showCommit (14);           // Plexer
 
     //    displayObject ("245123c06d1b0a41f66e2763f7b3975601512c3b");
     //    for (int i = 1; i <= 6; i++)
@@ -114,6 +110,12 @@ public class GitBrowser
   private void showCommit (int index)
   // ---------------------------------------------------------------------------------//
   {
+    if (index < 0 || index >= objects.size ())
+    {
+      System.out.printf ("Invalid index: %d%n", index);
+      return;
+    }
+
     GitObject commit = objects.get (index);
     if (commit.getObjectType () != ObjectType.COMMIT)
     {
@@ -149,7 +151,7 @@ public class GitBrowser
   }
 
   // ---------------------------------------------------------------------------------//
-  void displayTotals (String project)
+  void displayObjects (String project)
   // ---------------------------------------------------------------------------------//
   {
     System.out.printf ("Project .... %s%n%n", project);
@@ -171,7 +173,7 @@ public class GitBrowser
         System.out.printf ("%3d  %s%n", count++, object);
     }
 
-    if (true)
+    if (false)
       for (PackFile packFile : packFiles)
       {
         System.out.printf ("%nPack: %s%n%n", packFile.packFileSha1);
@@ -183,12 +185,10 @@ public class GitBrowser
 
         int count = 0;
         for (PackFileItem packFileItem : packItemsBySha.values ())
-        {
-          //          String name = packNamesBySha.get (packFileItem.getSha1 ());
           System.out.printf ("%3d  %s%n", count++, packFileItem);
-          //              name == null ? "" : name);
-        }
       }
+
+    System.out.println ();
   }
 
   // ---------------------------------------------------------------------------------//
@@ -238,7 +238,7 @@ public class GitBrowser
 
   // Process .git/objects/pack folder
   // ---------------------------------------------------------------------------------//
-  private void addPackFiles (File parentFolder)
+  private void addPackFiles (String projectName, File parentFolder)
   // ---------------------------------------------------------------------------------//
   {
     // process the index files first
@@ -281,6 +281,7 @@ public class GitBrowser
             Commit commit = (Commit) object;
             packNamesBySha.put (commit.getSha (),
                 '"' + commit.getFirstMessageLine () + '"');
+            packNamesBySha.put (commit.getTreeSha (), projectName);
             break;
         }
       }
