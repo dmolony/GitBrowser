@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import com.bytezone.gitbrowser.GitObject.ObjectType;
@@ -14,9 +13,6 @@ import com.bytezone.gitbrowser.GitObject.ObjectType;
 public class GitProject
 // -----------------------------------------------------------------------------------//
 {
-  private static final int COMMIT = 1;
-  private static final int TREE = 2;
-
   String projectName;
 
   File projectFolder;
@@ -28,8 +24,8 @@ public class GitProject
   int totalPackedObjects;
 
   private final List<PackFile> packFiles = new ArrayList<> ();
-  private final Map<String, GitObject> objectsBySha = new TreeMap<> ();
-  private final Map<String, File> filesBySha = new TreeMap<> ();
+  private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
+  private final TreeMap<String, File> filesBySha = new TreeMap<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitProject (String projectPath)
@@ -128,15 +124,14 @@ public class GitProject
   // ---------------------------------------------------------------------------------//
   {
     String shaHi = sha + "zz";
-    String key = ((TreeMap<String, GitObject>) objectsBySha).floorKey (shaHi);
+    String key = objectsBySha.floorKey (shaHi);
 
     if (key.startsWith (sha))
       return getObject (key);
 
-    return getObject (((TreeMap<String, File>) filesBySha).floorKey (shaHi));
+    return getObject (filesBySha.floorKey (shaHi));
   }
 
-  // Process .git/objects/pack folder
   // ---------------------------------------------------------------------------------//
   private void addPackFiles ()
   // ---------------------------------------------------------------------------------//
