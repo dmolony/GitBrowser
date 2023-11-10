@@ -9,14 +9,12 @@ public final class Commit extends GitObject
 {
   private List<String> commitLines;
 
-  private int parentIndex;                // 0, or last parent line
-  private int committerIndex;
-
   private String treeSha;
   private Action author;
   private Action committer;
 
   private List<String> parents = new ArrayList<> ();
+  private List<String> message = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
   public Commit (String name, byte[] data)
@@ -26,28 +24,21 @@ public final class Commit extends GitObject
 
     commitLines = split (data);
     treeSha = skipFirst (commitLines.get (0));
+    boolean inMessage = false;
 
-    int lineNo = 0;
     for (String line : commitLines)
     {
-      if (line.startsWith ("parent"))             // could be 0, 1 or 2 of these
-      {
+      if (inMessage)
+        message.add (line);
+      else if (line.startsWith ("parent"))             // could be any number of these
         parents.add (skipFirst (line));
-        parentIndex = lineNo;
-      }
       else if (line.startsWith ("author"))
-      {
-        //        authorIndex = lineNo;
         author = new Action (line);
-      }
       else if (line.startsWith ("committer"))
       {
-        committerIndex = lineNo;
         committer = new Action (line);
-        break;                        // following lines are the commit message
+        inMessage = true;                // everything after this is the commit message
       }
-
-      lineNo++;
     }
   }
 
@@ -76,7 +67,7 @@ public final class Commit extends GitObject
   public String getFirstMessageLine ()
   // ---------------------------------------------------------------------------------//
   {
-    return commitLines.get (committerIndex + 2);
+    return message.get (1);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -89,14 +80,15 @@ public final class Commit extends GitObject
     text.append ("%n%s%n".formatted (LINE));
 
     text.append ("Tree ....... %6.6s%n".formatted (treeSha));
-    if (parentIndex > 0)
-      for (int i = 1; i <= parentIndex; i++)
-        text.append ("Parent ..... %6.6s%n".formatted (skipFirst (commitLines.get (i))));
+
+    for (String parent : parents)
+      text.append ("Parent ..... %6.6s%n".formatted (parent));
+
     text.append ("Author ..... %s%n".formatted (author));
     text.append ("Committer .. %s%n".formatted (committer));
 
-    for (int i = committerIndex + 1; i < commitLines.size (); i++)
-      text.append ("%s%n".formatted (commitLines.get (i)));
+    for (String messageLine : message)
+      text.append ("%s%n".formatted (messageLine));
 
     return Utility.rtrim (text);
   }
@@ -106,7 +98,7 @@ public final class Commit extends GitObject
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return String.format ("%s  %s", committer.getFormattedDate (),
+    return String.format ("%6.6s  %s  %s", sha, committer.getFormattedDate (),
         getFirstMessageLine ());
   }
 }

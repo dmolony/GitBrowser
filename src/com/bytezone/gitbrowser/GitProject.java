@@ -96,8 +96,7 @@ public class GitProject
       List<String> parents = commit.getParents ();
       if (parents.size () == 0)
         break;
-      commit = (Commit) getObject (parents.get (0));
-
+      commit = (Commit) getObject (parents.get (0));    // not sure about merges
     }
   }
 
@@ -227,7 +226,7 @@ public class GitProject
     text.append ("Project name ............ %s%n".formatted (projectFolder.getName ()));
     text.append ("Loose objects ........... %,d%n".formatted (totalLooseObjects));
     text.append ("Pack files .............. %,d%n".formatted (packFiles.size ()));
-    text.append ("Pack items .............. %,d%n".formatted (totalPackedObjects));
+    text.append ("Packed objects .......... %,d%n".formatted (totalPackedObjects));
 
     return Utility.rtrim (text);
   }

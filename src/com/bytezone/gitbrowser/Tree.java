@@ -35,7 +35,7 @@ public final class Tree extends GitObject implements Iterable<TreeItem>
     text.append ("%n%s%n".formatted (LINE));
 
     for (TreeItem treeItem : treeItems)
-      text.append (treeItem + "\n");
+      text.append ("%s%n".formatted (treeItem));
 
     return Utility.rtrim (text);
   }
