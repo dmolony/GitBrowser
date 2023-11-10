@@ -12,11 +12,11 @@ public class GitBrowser
   {
     //    String project = "Common";
     //    String project = "DiskTest";
-    //    String project = "EnigmaMachine";
+    String project = "EnigmaMachine";
     //    String project = "AppleFormat";
     //    String project = "GitBrowser";
     //    String project = "Plexer";
-    String project = "VistaFob";
+    //    String project = "VistaFob";
     //    String project = "Dataset";
     //    String project = "LoadLister";
     //    String project = "BreadBoard";

@@ -1,5 +1,6 @@
 package com.bytezone.gitbrowser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // -----------------------------------------------------------------------------------//
@@ -15,6 +16,8 @@ public final class Commit extends GitObject
   private Action author;
   private Action committer;
 
+  private List<String> parents = new ArrayList<> ();
+
   // ---------------------------------------------------------------------------------//
   public Commit (String name, byte[] data)
   // ---------------------------------------------------------------------------------//
@@ -28,7 +31,10 @@ public final class Commit extends GitObject
     for (String line : commitLines)
     {
       if (line.startsWith ("parent"))             // could be 0, 1 or 2 of these
+      {
+        parents.add (skipFirst (line));
         parentIndex = lineNo;
+      }
       else if (line.startsWith ("author"))
       {
         //        authorIndex = lineNo;
@@ -50,6 +56,13 @@ public final class Commit extends GitObject
   // ---------------------------------------------------------------------------------//
   {
     return commitLines;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public List<String> getParents ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return parents;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -86,5 +99,14 @@ public final class Commit extends GitObject
       text.append ("%s%n".formatted (commitLines.get (i)));
 
     return Utility.rtrim (text);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  @Override
+  public String toString ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return String.format ("%s  %s", committer.getFormattedDate (),
+        getFirstMessageLine ());
   }
 }

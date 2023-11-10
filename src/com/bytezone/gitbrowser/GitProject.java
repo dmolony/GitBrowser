@@ -57,6 +57,50 @@ public class GitProject
       addPackFiles ();
   }
 
+  // get object using a partial sha
+  // ---------------------------------------------------------------------------------//
+  public GitObject getFloor (String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+    String shaHi = sha + "zz";
+    String key = objectsBySha.floorKey (shaHi);
+
+    return key.startsWith (sha) ? getObject (key)
+        : getObject (filesBySha.floorKey (shaHi));
+  }
+
+  // get object using an exact sha
+  // ---------------------------------------------------------------------------------//
+  public GitObject getObject (String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+    if (!objectsBySha.containsKey (sha))
+      if (filesBySha.containsKey (sha))
+      {
+        GitObject object = GitObjectFactory.getObject (filesBySha.get (sha));
+        objectsBySha.put (sha, object);
+      }
+      else
+        System.out.printf ("SHA: %s not found%n", sha);
+
+    return objectsBySha.get (sha);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void showCommitChain (Commit commit)
+  // ---------------------------------------------------------------------------------//
+  {
+    while (commit != null)
+    {
+      System.out.println (commit);
+      List<String> parents = commit.getParents ();
+      if (parents.size () == 0)
+        break;
+      commit = (Commit) getObject (parents.get (0));
+
+    }
+  }
+
   // ---------------------------------------------------------------------------------//
   void showHead ()
   // ---------------------------------------------------------------------------------//
@@ -69,6 +113,8 @@ public class GitProject
         List<String> content = Files.readAllLines (file.toPath ());
         assert content.size () == 1;
 
+        showCommitChain ((Commit) getObject (content.get (0)));
+        System.out.println ();
         showCommit ((Commit) getObject (content.get (0)));
       }
       catch (IOException e)
@@ -101,35 +147,6 @@ public class GitProject
       else if (object.getObjectType () == ObjectType.TREE)
         showTree ((Tree) object);                               // recursion
     }
-  }
-
-  // ---------------------------------------------------------------------------------//
-  public GitObject getObject (String sha)
-  // ---------------------------------------------------------------------------------//
-  {
-    if (!objectsBySha.containsKey (sha))
-      if (filesBySha.containsKey (sha))
-      {
-        GitObject object = GitObjectFactory.getObject (filesBySha.get (sha));
-        objectsBySha.put (sha, object);
-      }
-      else
-        System.out.printf ("SHA: %s not found%n", sha);
-
-    return objectsBySha.get (sha);
-  }
-
-  // ---------------------------------------------------------------------------------//
-  public GitObject getFloor (String sha)
-  // ---------------------------------------------------------------------------------//
-  {
-    String shaHi = sha + "zz";
-    String key = objectsBySha.floorKey (shaHi);
-
-    if (key.startsWith (sha))
-      return getObject (key);
-
-    return getObject (filesBySha.floorKey (shaHi));
   }
 
   // ---------------------------------------------------------------------------------//

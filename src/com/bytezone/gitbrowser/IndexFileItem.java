@@ -22,7 +22,7 @@ public class IndexFileItem implements Comparable<IndexFileItem>
   public int compareTo (IndexFileItem o)
   // ---------------------------------------------------------------------------------//
   {
-    return this.offset == o.offset ? 0 : this.offset < o.offset ? -1 : 1;
+    return this.offset < o.offset ? -1 : this.offset > o.offset ? 1 : 0;
   }
 
   // ---------------------------------------------------------------------------------//

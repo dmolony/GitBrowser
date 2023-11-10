@@ -11,6 +11,8 @@ public class Action
 {
   static final DateTimeFormatter formatter =
       DateTimeFormatter.ofPattern ("yyyy-MM-dd HH:mm");
+  static final DateTimeFormatter dateFormatter =
+      DateTimeFormatter.ofPattern ("yyyy-MM-dd");
 
   final String name;
   final String email;
@@ -42,6 +44,13 @@ public class Action
   // ---------------------------------------------------------------------------------//
   {
     return line.substring (line.indexOf (' ') + 1);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  String getFormattedDate ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return date.format (dateFormatter);
   }
 
   // ---------------------------------------------------------------------------------//

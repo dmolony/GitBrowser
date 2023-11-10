@@ -2,160 +2,68 @@
 
 ## Example Output
 ```
-Project .... GitBrowser
+Project name ............ EnigmaMachine
+Loose objects ........... 149
+Pack files .............. 1
+Pack items .............. 14
 
-Objects ....     224
-Commits ....      61
-Trees ......      91
-Blobs ......      72
-Tags .......       0
-Packfiles ..       1
+Branch: main
 
-Ndx  SHA-1   Type      Length  Name
----  ------  ------  --------  ----------------------------
-  0  00b59e  TREE          30  
-  1  010657  BLOB       3,334  README.md
-  2  05c8cd  COMMIT       246  
-  3  074397  COMMIT       246  
-  4  07f403  COMMIT       261  
-  5  0865bd  BLOB       3,566  README.md
-  6  08cb83  TREE          67  
-  7  08f2c9  BLOB       8,245  PackFile.java
-  8  09e196  BLOB       1,888  TreeItem.java
-  9  0c56fd  BLOB         204  README.md
- 10  0d0ccd  TREE          30  src
-...
-...
-...
-211  f2256a  BLOB       6,325  GitBrowser.java
-212  f466f9  COMMIT       246  
-213  f4e72e  BLOB       6,005  README.md
-214  f55a8e  COMMIT       246  
-215  f5c924  BLOB       1,260  IndexFileItem.java
-216  f66819  TREE          67  
-217  f8ae9e  BLOB       3,614  README.md
-218  f90b9f  BLOB       6,228  GitBrowser.java
-219  f9a33a  BLOB         513  README.md
-220  fa0a59  COMMIT       258  
-221  fb1158  BLOB         195  README.md
-222  fd42fd  BLOB         201  README.md
-223  ffe61e  BLOB       7,968  GitBrowser.java
+2023-09-28  changed error message
+2023-09-04  added EntryDisk
+2023-09-03  added test message
+2023-08-31  tidying
+2023-08-31  tidying
+2023-08-30  tidying
+2023-08-28  removed separate thin rotor
+2023-08-27  M4
+2023-08-27  removed thin types
+2023-08-27  removing thin types
+2023-08-27  attempt at thin rotors
+2023-08-16  added Scrambler4Wheel
+2023-08-15  added ThinReflector
+2023-08-12  tidying
+2023-08-12  privatised
+2023-08-11  tidying
+2023-08-09  tidying
+2023-08-09  initial commit
 ```
-## Pack File Contents
+## Contents of HEAD
 ```
-Pack: a5c6628afc0b0a3981e47a2ced178e64ba19cb93
-
-Objects ....      18
-Commits ....       1
-Trees ......       5
-Blobs ......       6
-Tags .......       0
-Delta ofs ..       6
-Delta ref ..       0
-
-Ndx  SHA-1   Type     Link      Length  Name
----  ------  -------  ------  --------  -------------------------
-  0  07b8df  Blob                2,447  Commit.java
-  1  14120b  Ofs Dlt  fa665c       401  IndexFileItem.java
-  2  295cec  Ofs Dlt  07b8df       193  Blob.java
-  3  6dd3da  Tree                   30  src
-  4  9bc8c0  Blob               11,967  PackFileItem.java
-  5  a05498  Blob                2,012  GitObjectFactory.java
-  6  ab9288  Tree                   37  bytezone
-  7  b6a3de  Blob                4,629  Utility.java
-  8  b7981c  Commit   c39b23       209  
-  9  c39b23  Tree                   30  
- 10  c7bda9  Blob                6,230  GitBrowser.java
- 11  d412d6  Ofs Dlt  9bc8c0       676  TreeItem.java
- 12  e7a84f  Tree                   35  com
- 13  e7e8cc  Blob                7,714  PackFile.java
- 14  ef16de  Ofs Dlt  07b8df       513  Tag.java
- 15  f7b759  Ofs Dlt  07b8df       514  Tree.java
- 16  fa665c  Ofs Dlt  07b8df     1,173  GitObject.java
- 17  fe4d35  Tree                  496  gitbrowser    
- ```
-## Rebuilding a packed delta file
- Object 14120b refers to fa665c which refers to 07b8df.
- ```
-14120b  BLOB       1,242
+dcd729  COMMIT       263
 ------------------------------------------------------------
-package com.bytezone.gitbrowser;
+Tree ....... 95004b
+Parent ..... 510bad
+Author ..... Denis Molony  2023-09-28 13:51
+Committer .. Denis Molony  2023-09-28 13:51
 
-// -----------------------------------------------------------------------------------//
-public class IndexFileItem implements Comparable<IndexFileItem>
-// -----------------------------------------------------------------------------------//
-{
-  String sha1;
-  long crc;
-  long offset;
+changed error message
 
-  // ---------------------------------------------------------------------------------//
-  public IndexFileItem (String sha1, long crc, long offset)
-  // ---------------------------------------------------------------------------------//
-  {
-    this.sha1 = sha1;
-    this.crc = crc;
-    this.offset = offset;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  @Override
-  public int compareTo (IndexFileItem o)
-  // ---------------------------------------------------------------------------------//
-  {
-    return this.offset == o.offset ? 0 : this.offset < o.offset ? -1 : 1;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  @Override
-  public String toString ()
-  // ---------------------------------------------------------------------------------//
-  {
-    return String.format ("%,7d  %s %,15d", offset, sha1, crc);
-  }
-}
-```
-## Displaying the full Commit
-```
-7341d6  COMMIT       264  "walk the commit object"
+95004b  TREE          30
 ------------------------------------------------------------
-Tree ....... 40745c
-Parent ..... b55f6b
-Author ..... Denis Molony  2023-11-07 15:43
-Committer .. Denis Molony  2023-11-07 15:43
+86fae9  40000   src
 
-walk the commit object
-
-40745c  TREE          67  GitBrowser
+86fae9  TREE          30
 ------------------------------------------------------------
-0d9d0f  100644  README.md
-1879f6  40000   src
+ed5b49  40000   com
 
-1879f6  TREE          30  src
+ed5b49  TREE          35
 ------------------------------------------------------------
-dab66e  40000   com
+c73e9e  40000   bytezone
 
-dab66e  TREE          35  com
+c73e9e  TREE          33
 ------------------------------------------------------------
-35e075  40000   bytezone
+2d1826  40000   enigma
 
-35e075  TREE          37  bytezone
+2d1826  TREE         385
 ------------------------------------------------------------
-887bbc  40000   gitbrowser
-
-887bbc  TREE         535  gitbrowser
-------------------------------------------------------------
-96ae46  100644  Action.java
-9c8731  100644  Blob.java
-69a007  100644  Commit.java
-059287  100644  GitBrowser.java
-53218a  100644  GitObject.java
-cb249e  100644  GitObjectFactory.java
-f5c924  100644  IndexFileItem.java
-4b7332  100644  PackFile.java
-f71b68  100644  PackFileItem.java
-ef16de  100644  Tag.java
-f7b759  100644  Tree.java
-56922e  100644  TreeItem.java
-40f730  100644  Utility.java
+25db53  100644  BadWiringException.java
+5b9eeb  100644  Enigma.java
+17b627  100644  EntryDisk.java
+0c11be  100644  PlugBoard.java
+e0449d  100644  PlugBoardConnector.java
+47f940  100644  Reflector.java
+8ec280  100644  Rotor.java
+52a7fb  100644  Scrambler.java
+d2fe5e  100644  Wheel.java
 ```
