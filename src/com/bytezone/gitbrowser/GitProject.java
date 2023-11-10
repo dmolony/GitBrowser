@@ -99,11 +99,9 @@ public class GitProject
 
     for (TreeItem treeItem : tree)
     {
-      GitObject object = getObject (treeItem.sha1);
+      GitObject object = getObject (treeItem.sha);
       if (object == null)
-      {
         System.out.println ("*********** object not found *********");
-      }
       else if (object.getObjectType () == ObjectType.TREE)
         showTree ((Tree) object);                               // recursion
     }
@@ -126,7 +124,7 @@ public class GitProject
   }
 
   // ---------------------------------------------------------------------------------//
-  private GitObject getFloor (String sha)
+  public GitObject getFloor (String sha)
   // ---------------------------------------------------------------------------------//
   {
     String shaHi = sha + "zz";

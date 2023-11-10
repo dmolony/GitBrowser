@@ -271,6 +271,24 @@ public class PackFile implements Iterable<PackFileItem>
   }
 
   // ---------------------------------------------------------------------------------//
+  void displayPackTotals ()
+  // ---------------------------------------------------------------------------------//
+  {
+    int[] totals = new int[8];
+
+    for (PackFileItem packFileItem : packFileItems)
+      totals[packFileItem.getType ()]++;
+
+    System.out.printf ("Objects .... %,7d%n", totFiles);
+    System.out.printf ("Commits .... %,7d%n", totals[1]);
+    System.out.printf ("Trees ...... %,7d%n", totals[2]);
+    System.out.printf ("Blobs ...... %,7d%n", totals[3]);
+    System.out.printf ("Tags ....... %,7d%n", totals[4]);
+    System.out.printf ("Delta ofs .. %,7d%n", totals[6]);
+    System.out.printf ("Delta ref .. %,7d%n", totals[7]);
+  }
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public Iterator<PackFileItem> iterator ()
   // ---------------------------------------------------------------------------------//

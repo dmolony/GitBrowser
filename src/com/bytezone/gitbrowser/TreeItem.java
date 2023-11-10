@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 public class TreeItem
 // -----------------------------------------------------------------------------------//
 {
-  final String sha1;
+  final String sha;
   final String permissions;
   final String name;
   final int length;
@@ -26,7 +26,7 @@ public class TreeItem
     permissions = contents.substring (0, pos);
     name = contents.substring (pos + 1);
 
-    sha1 = Utility.getSha1 (buffer, ptr + 1);
+    sha = Utility.getSha1 (buffer, ptr + 1);
     length = ptr - start + 21;
   }
 
@@ -57,6 +57,6 @@ public class TreeItem
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return "%-6.6s  %-6s  %s".formatted (sha1, permissions, name);
+    return "%-6.6s  %-6s  %s".formatted (sha, permissions, name);
   }
 }
