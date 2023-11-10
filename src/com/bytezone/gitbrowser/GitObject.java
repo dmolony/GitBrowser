@@ -13,7 +13,6 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   protected final String sha;
   protected final byte[] buffer;
   protected final ObjectType objectType;
-  protected String name;                        // added when known
 
   enum ObjectType
   {
@@ -38,13 +37,6 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   // ---------------------------------------------------------------------------------//
   {
     return sha;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  void setName (String name)
-  // ---------------------------------------------------------------------------------//
-  {
-    this.name = name;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -88,7 +80,6 @@ public abstract sealed class GitObject permits Commit, Tree, Blob, Tag
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return String.format ("%-6.6s  %-6s  %,8d  %s", sha, objectType, buffer.length,
-        name == null ? "*** deleted ***" : name);
+    return String.format ("%-6.6s  %-6s  %,8d", sha, objectType, buffer.length);
   }
 }

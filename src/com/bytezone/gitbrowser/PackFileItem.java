@@ -377,7 +377,7 @@ public class PackFileItem
       default -> throw new IllegalArgumentException ("Unexpected value: " + header.type);
     };
 
-    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d  %s", sha, typesText[header.type],
-        parentSha, header.value, object.name == null ? "*** deleted ***" : object.name);
+    return String.format ("%-6.6s  %-7s  %-6.6s  %,8d", sha, typesText[header.type],
+        parentSha, header.value);
   }
 }

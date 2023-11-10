@@ -21,9 +21,11 @@ public class GitObjectFactory
   }
 
   // ---------------------------------------------------------------------------------//
-  public static GitObject getObject (File parent, File file)
+  //  public static GitObject getObject (File parent, File file)
+  public static GitObject getObject (File file)
   // ---------------------------------------------------------------------------------//
   {
+    File parent = file.getParentFile ();
     String name = parent.getName () + file.getName ();
 
     try
