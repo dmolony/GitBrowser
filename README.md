@@ -1,6 +1,7 @@
 # GitBrowser
-
+Just some experimental code to examine the files in the .git/objects folder.
 ## Example Output
+### Project commit history
 ```
 Project name ............ EnigmaMachine
 Loose objects ........... 149
@@ -28,7 +29,7 @@ Branch: main
 2023-08-09  tidying
 2023-08-09  initial commit
 ```
-## Contents of HEAD
+### Contents of HEAD
 ```
 dcd729  COMMIT       263
 ------------------------------------------------------------
