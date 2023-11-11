@@ -4,15 +4,15 @@ package com.bytezone.gitbrowser;
 public class IndexFileItem implements Comparable<IndexFileItem>
 // -----------------------------------------------------------------------------------//
 {
-  final String sha1;
+  final String sha;
   final long crc;
   final long offset;
 
   // ---------------------------------------------------------------------------------//
-  public IndexFileItem (String sha1, long crc, long offset)
+  public IndexFileItem (String sha, long crc, long offset)
   // ---------------------------------------------------------------------------------//
   {
-    this.sha1 = sha1;
+    this.sha = sha;
     this.crc = crc;
     this.offset = offset;
   }
@@ -30,6 +30,6 @@ public class IndexFileItem implements Comparable<IndexFileItem>
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    return String.format ("%,7d  %s %,15d", offset, sha1, crc);
+    return String.format ("%,7d  %s %,15d", offset, sha, crc);
   }
 }

@@ -6,14 +6,16 @@ import java.io.FileNotFoundException;
 public class GitBrowser
 // -----------------------------------------------------------------------------------//
 {
+  String gitFolderName = System.getProperty ("user.home") + "/Documents/GitLocal/";
+
   // ---------------------------------------------------------------------------------//
   public GitBrowser () throws FileNotFoundException
   // ---------------------------------------------------------------------------------//
   {
     //    String project = "Common";
     //    String project = "DiskTest";
-    String project = "EnigmaMachine";
-    //    String project = "AppleFormat";
+    //    String project = "EnigmaMachine";
+    String project = "AppleFormat";
     //    String project = "GitBrowser";
     //    String project = "Plexer";
     //    String project = "VistaFob";
@@ -21,12 +23,12 @@ public class GitBrowser
     //    String project = "LoadLister";
     //    String project = "BreadBoard";
 
-    String home = System.getProperty ("user.home");
+    GitProject gitProject = new GitProject (gitFolderName + project);
 
-    GitProject gitProject = new GitProject (home + "/Documents/GitLocal/" + project);
     System.out.println (gitProject);
-
     gitProject.showHead ();
+    System.out.println ();
+    gitProject.showObject ("27cb2c");
   }
 
   // ---------------------------------------------------------------------------------//

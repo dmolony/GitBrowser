@@ -74,7 +74,7 @@ public class Utility
   }
 
   // ---------------------------------------------------------------------------------//
-  public static String getSha1 (byte[] buffer, int offset)
+  public static String getSha (byte[] buffer, int offset)
   // ---------------------------------------------------------------------------------//
   {
     StringBuilder text = new StringBuilder ();

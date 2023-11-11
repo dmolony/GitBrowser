@@ -18,20 +18,16 @@ public class PackFile implements Iterable<PackFileItem>
   static String[] typesText =
       { "???", "Commit", "Tree", "Blob", "Tag", "???", "Ofs Dlt", "Ref Dlt" };
 
-  private File indexFile;
-  private File packFile;
-  private File revFile;
-
   private List<PackFileItem> packFileItems = new ArrayList<> ();
   private List<IndexFileItem> indexFileItems = new ArrayList<> ();
 
   Map<Long, PackFileItem> offsetListPackFile = new TreeMap<> ();
   Map<Long, IndexFileItem> indexList = new TreeMap<> ();
 
-  String packFileSha1;
+  String packFileSha;
   int totFiles;
 
-  String[] sha1;
+  String[] sha;
   long[] offsetsIndex;
   long[] crc;
   long[] fanout;
@@ -42,11 +38,10 @@ public class PackFile implements Iterable<PackFileItem>
   public PackFile (File indexFile, Map<String, GitObject> objectsBySha)
   // ---------------------------------------------------------------------------------//
   {
-    packFileSha1 = getSha1 (indexFile);
+    packFileSha = getSha (indexFile);
     this.objectsBySha = objectsBySha;
 
     fanout = new long[256];
-    this.indexFile = indexFile;
 
     try
     {
@@ -63,14 +58,14 @@ public class PackFile implements Iterable<PackFileItem>
 
       totFiles = (int) fanout[0xFF];
 
-      sha1 = new String[totFiles];
+      sha = new String[totFiles];
       offsetsIndex = new long[totFiles];
       crc = new long[totFiles];
 
       int ptr = 0x408;                        // 1032
       for (int i = 0; i < totFiles; i++)
       {
-        sha1[i] = Utility.getSha1 (content, ptr);
+        sha[i] = Utility.getSha (content, ptr);
         ptr += 20;
       }
 
@@ -96,8 +91,8 @@ public class PackFile implements Iterable<PackFileItem>
 
       if (false)
       {
-        String packFileSha1 = Utility.getSha1 (content, ptr);
-        String indexFileSha1 = Utility.getSha1 (content, ptr + 20);
+        String packFileSha1 = Utility.getSha (content, ptr);
+        String indexFileSha1 = Utility.getSha (content, ptr + 20);
         System.out.println (packFileSha1);
         System.out.println (indexFileSha1);
       }
@@ -106,8 +101,7 @@ public class PackFile implements Iterable<PackFileItem>
 
       for (int i = 0; i < totFiles; i++)
       {
-        IndexFileItem indexFileItem =
-            new IndexFileItem (sha1[i], crc[i], offsetsIndex[i]);
+        IndexFileItem indexFileItem = new IndexFileItem (sha[i], crc[i], offsetsIndex[i]);
         indexFileItems.add (indexFileItem);
         indexList.put (indexFileItem.offset, indexFileItem);
       }
@@ -158,7 +152,7 @@ public class PackFile implements Iterable<PackFileItem>
         offsetListPackFile.put ((long) ptr, packFileItem);
         ptr += packFileItem.getRawLength ();
 
-        packFileItem.setSha (indexList.get (packFileItem.getOffset ()).sha1);
+        packFileItem.setSha (indexList.get (packFileItem.getOffset ()).sha);
 
         if (packFileItem.isTypeDelta ())
           updateDeltaRef (packFileItem);
@@ -204,8 +198,8 @@ public class PackFile implements Iterable<PackFileItem>
 
       if (false)
       {
-        String packFileSha1 = Utility.getSha1 (content, ptr);
-        String revFileSha1 = Utility.getSha1 (content, ptr + 20);
+        String packFileSha1 = Utility.getSha (content, ptr);
+        String revFileSha1 = Utility.getSha (content, ptr + 20);
         System.out.println (packFileSha1);
         System.out.println (revFileSha1);
       }
@@ -217,7 +211,7 @@ public class PackFile implements Iterable<PackFileItem>
   }
 
   // ---------------------------------------------------------------------------------//
-  private String getSha1 (File file)
+  private String getSha (File file)
   // ---------------------------------------------------------------------------------//
   {
     String fileName = file.getName ();
@@ -240,7 +234,7 @@ public class PackFile implements Iterable<PackFileItem>
   boolean shaMatches (File file)
   // ---------------------------------------------------------------------------------//
   {
-    return packFileSha1.equals (getSha1 (file));
+    return packFileSha.equals (getSha (file));
   }
 
   // ---------------------------------------------------------------------------------//

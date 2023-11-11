@@ -26,7 +26,7 @@ public class TreeItem
     permissions = contents.substring (0, pos);
     name = contents.substring (pos + 1);
 
-    sha = Utility.getSha1 (buffer, ptr + 1);
+    sha = Utility.getSha (buffer, ptr + 1);
     length = ptr - start + 21;
   }
 

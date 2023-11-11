@@ -57,23 +57,17 @@ public class GitProject
       addPackFiles ();
   }
 
-  // get object using a partial sha
-  // ---------------------------------------------------------------------------------//
-  public GitObject getFloor (String sha)
-  // ---------------------------------------------------------------------------------//
-  {
-    String shaHi = sha + "zz";
-    String key = objectsBySha.floorKey (shaHi);
-
-    return key.startsWith (sha) ? getObject (key)
-        : getObject (filesBySha.floorKey (shaHi));
-  }
-
-  // get object using an exact sha
   // ---------------------------------------------------------------------------------//
   public GitObject getObject (String sha)
   // ---------------------------------------------------------------------------------//
   {
+    if (sha.length () < 40)
+    {
+      String shaHi = sha + "zz";
+      String key = objectsBySha.floorKey (shaHi);
+      sha = key.startsWith (sha) ? key : filesBySha.floorKey (shaHi);
+    }
+
     if (!objectsBySha.containsKey (sha))
       if (filesBySha.containsKey (sha))
       {
@@ -101,6 +95,13 @@ public class GitProject
   }
 
   // ---------------------------------------------------------------------------------//
+  void showObject (String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+    System.out.println (getObject (sha).getText ());
+  }
+
+  // ---------------------------------------------------------------------------------//
   void showHead ()
   // ---------------------------------------------------------------------------------//
   {
@@ -121,6 +122,21 @@ public class GitProject
         e.printStackTrace ();
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public void showCommit (String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+    GitObject commit = getObject (sha);
+    if (commit.objectType != ObjectType.COMMIT)
+    {
+      System.out.println ("Not a COMMIT");
+      return;
+    }
+
+    System.out.println (commit.getText ());
+    showTree ((Tree) getObject (((Commit) commit).getTreeSha ()));
   }
 
   // ---------------------------------------------------------------------------------//

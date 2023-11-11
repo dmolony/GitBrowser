@@ -42,9 +42,9 @@ public class PackFileItem
       ptr += baseOffsetSize.headerSize;
       refDeltaOffset = offset - baseOffsetSize.value;
     }
-    else if (header.type == 7)                // OBJ_REF_DELTA
+    else if (header.type == 7)                // OBJ_REF_DELTA (won't happen)
     {
-      refDeltaSha = Utility.getSha1 (buffer, ptr);
+      refDeltaSha = Utility.getSha (buffer, ptr);
       ptr += 20;
     }
 
