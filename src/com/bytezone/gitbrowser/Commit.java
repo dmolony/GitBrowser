@@ -13,7 +13,7 @@ public final class Commit extends GitObject
   private Action author;
   private Action committer;
 
-  private List<String> parents = new ArrayList<> ();
+  private List<String> parentShas = new ArrayList<> ();
   private List<String> message = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
@@ -23,15 +23,14 @@ public final class Commit extends GitObject
     super (name, data, ObjectType.COMMIT);
 
     commitLines = split (data);
-    treeSha = skipFirst (commitLines.get (0));
+    treeSha = skipFirst (commitLines.get (0));          // it's always here
     boolean inMessage = false;
 
     for (String line : commitLines)
-    {
       if (inMessage)
         message.add (line);
       else if (line.startsWith ("parent"))             // could be any number of these
-        parents.add (skipFirst (line));
+        parentShas.add (skipFirst (line));
       else if (line.startsWith ("author"))
         author = new Action (line);
       else if (line.startsWith ("committer"))
@@ -39,21 +38,20 @@ public final class Commit extends GitObject
         committer = new Action (line);
         inMessage = true;                // everything after this is the commit message
       }
-    }
   }
 
   // ---------------------------------------------------------------------------------//
-  public List<String> commitLines ()
+  public List<String> getCommitLines ()
   // ---------------------------------------------------------------------------------//
   {
     return commitLines;
   }
 
   // ---------------------------------------------------------------------------------//
-  public List<String> getParents ()
+  public List<String> getParentShas ()
   // ---------------------------------------------------------------------------------//
   {
-    return parents;
+    return parentShas;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -67,7 +65,11 @@ public final class Commit extends GitObject
   public String getFirstMessageLine ()
   // ---------------------------------------------------------------------------------//
   {
-    return message.get (1);
+    for (String line : message)
+      if (line.length () > 0)
+        return line;
+
+    return "< no message text >";
   }
 
   // ---------------------------------------------------------------------------------//
@@ -78,10 +80,9 @@ public final class Commit extends GitObject
     StringBuilder text = new StringBuilder (super.toString ());
 
     text.append ("%n%s%n".formatted (LINE));
-
     text.append ("Tree ....... %6.6s%n".formatted (treeSha));
 
-    for (String parent : parents)
+    for (String parent : parentShas)
       text.append ("Parent ..... %6.6s%n".formatted (parent));
 
     text.append ("Author ..... %s%n".formatted (author));

@@ -1,5 +1,5 @@
 # GitBrowser
-Just some experimental code to examine the files in the .git/objects folder.
+Just some experimental code to examine files in the .git folder.
 ## Example Output
 ### Project commit history
 ```

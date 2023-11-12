@@ -13,19 +13,18 @@ import com.bytezone.gitbrowser.GitObject.ObjectType;
 public class GitProject
 // -----------------------------------------------------------------------------------//
 {
-  String projectName;
+  private final File projectFolder;
+  private final File objectsFolder;
+  private final File packFolder;
+  private final File headsFolder;
 
-  File projectFolder;
-  File objectsFolder;
-  File packFolder;
-  File headsFolder;
-
-  int totalLooseObjects;
-  int totalPackedObjects;
+  private int totalPackedObjects;
+  private String head;
 
   private final List<PackFile> packFiles = new ArrayList<> ();
   private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
   private final TreeMap<String, File> filesBySha = new TreeMap<> ();
+  private final List<Branch> branches = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitProject (String projectPath)
@@ -36,25 +35,32 @@ public class GitProject
     packFolder = getOptionalFile (projectPath + "/.git/objects/pack");
     headsFolder = getMandatoryFile (projectPath + "/.git/refs/heads");
 
-    projectName = projectFolder.getName ();
-
-    for (File parentFolder : objectsFolder.listFiles ())
-    {
-      if (parentFolder.getName ().length () != 2)
-        continue;
-
-      File[] files = parentFolder.listFiles ();
-      totalLooseObjects += files.length;
-
-      for (File file : files)
-      {
-        String sha = parentFolder.getName () + file.getName ();
-        filesBySha.put (sha, file);
-      }
-    }
+    addFiles ();
 
     if (packFolder != null)
       addPackFiles ();
+
+    addBranches ();
+    head = getHead ();
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public String getHead ()
+  // ---------------------------------------------------------------------------------//
+  {
+    try
+    {
+      List<String> content =
+          Files.readAllLines (new File (projectFolder + "/.git/HEAD").toPath ());
+      String line = content.get (0);
+      int pos = line.lastIndexOf ('/');
+      return line.substring (pos + 1);
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace ();
+      return "";
+    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -70,10 +76,7 @@ public class GitProject
 
     if (!objectsBySha.containsKey (sha))
       if (filesBySha.containsKey (sha))
-      {
-        GitObject object = GitObjectFactory.getObject (filesBySha.get (sha));
-        objectsBySha.put (sha, object);
-      }
+        objectsBySha.put (sha, GitObjectFactory.getObject (filesBySha.get (sha)));
       else
         System.out.printf ("SHA: %s not found%n", sha);
 
@@ -87,7 +90,7 @@ public class GitProject
     while (commit != null)
     {
       System.out.println (commit);
-      List<String> parents = commit.getParents ();
+      List<String> parents = commit.getParentShas ();
       if (parents.size () == 0)
         break;
       commit = (Commit) getObject (parents.get (0));    // not sure about merges
@@ -105,23 +108,15 @@ public class GitProject
   void showHead ()
   // ---------------------------------------------------------------------------------//
   {
-    for (File file : headsFolder.listFiles ())
-    {
-      System.out.printf ("%nBranch: %s%n%n", file.getName ());
-      try
+    for (Branch branch : branches)
+      if (branch.name.equals (head))
       {
-        List<String> content = Files.readAllLines (file.toPath ());
-        assert content.size () == 1;
-
-        showCommitChain ((Commit) getObject (content.get (0)));
+        System.out.printf ("%nBranch: %s%n%n", branch.name);
+        showCommitChain ((Commit) getObject (branch.sha));
         System.out.println ();
-        showCommit ((Commit) getObject (content.get (0)));
+        showCommit ((Commit) getObject (branch.sha));
+        break;
       }
-      catch (IOException e)
-      {
-        e.printStackTrace ();
-      }
-    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -162,6 +157,41 @@ public class GitProject
       else if (object.getObjectType () == ObjectType.TREE)
         showTree ((Tree) object);                               // recursion
     }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void addFiles ()
+  // ---------------------------------------------------------------------------------//
+  {
+    for (File parentFolder : objectsFolder.listFiles ())
+    {
+      if (parentFolder.getName ().length () != 2)
+        continue;
+
+      File[] files = parentFolder.listFiles ();
+
+      for (File file : files)
+      {
+        String sha = parentFolder.getName () + file.getName ();
+        filesBySha.put (sha, file);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void addBranches ()
+  // ---------------------------------------------------------------------------------//
+  {
+    for (File file : headsFolder.listFiles ())
+      try
+      {
+        List<String> content = Files.readAllLines (file.toPath ());
+        branches.add (new Branch (file.getName (), content.get (0)));
+      }
+      catch (IOException e)
+      {
+        e.printStackTrace ();
+      }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -233,6 +263,12 @@ public class GitProject
   }
 
   // ---------------------------------------------------------------------------------//
+  record Branch (String name, String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+  };
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public String toString ()
   // ---------------------------------------------------------------------------------//
@@ -240,9 +276,11 @@ public class GitProject
     StringBuilder text = new StringBuilder ();
 
     text.append ("Project name ............ %s%n".formatted (projectFolder.getName ()));
-    text.append ("Loose objects ........... %,d%n".formatted (totalLooseObjects));
+    text.append ("Loose objects ........... %,d%n".formatted (filesBySha.size ()));
     text.append ("Pack files .............. %,d%n".formatted (packFiles.size ()));
     text.append ("Packed objects .......... %,d%n".formatted (totalPackedObjects));
+    text.append ("Branches ................ %,d%n".formatted (branches.size ()));
+    text.append ("HEAD .................... %s%n".formatted (head));
 
     return Utility.rtrim (text);
   }
