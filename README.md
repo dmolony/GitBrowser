@@ -6,28 +6,30 @@ Just some experimental code to examine files in the .git folder.
 Project name ............ EnigmaMachine
 Loose objects ........... 149
 Pack files .............. 1
-Pack items .............. 14
+Packed objects .......... 14
+Branches ................ 1
+HEAD .................... main
 
 Branch: main
 
-2023-09-28  changed error message
-2023-09-04  added EntryDisk
-2023-09-03  added test message
-2023-08-31  tidying
-2023-08-31  tidying
-2023-08-30  tidying
-2023-08-28  removed separate thin rotor
-2023-08-27  M4
-2023-08-27  removed thin types
-2023-08-27  removing thin types
-2023-08-27  attempt at thin rotors
-2023-08-16  added Scrambler4Wheel
-2023-08-15  added ThinReflector
-2023-08-12  tidying
-2023-08-12  privatised
-2023-08-11  tidying
-2023-08-09  tidying
-2023-08-09  initial commit
+dcd729  2023-09-28  changed error message
+510bad  2023-09-04  added EntryDisk
+c4dda2  2023-09-03  added test message
+14c7c0  2023-08-31  tidying
+79506b  2023-08-31  tidying
+67d98e  2023-08-30  tidying
+92a019  2023-08-28  removed separate thin rotor
+7bc593  2023-08-27  M4
+a2f3d9  2023-08-27  removed thin types
+4e44b8  2023-08-27  removing thin types
+27939a  2023-08-27  attempt at thin rotors
+e7dbc0  2023-08-16  added Scrambler4Wheel
+d35388  2023-08-15  added ThinReflector
+23ef6a  2023-08-12  tidying
+177034  2023-08-12  privatised
+c3f810  2023-08-11  tidying
+a4b5c2  2023-08-09  tidying
+a188c5  2023-08-09  initial commit
 ```
 ### Contents of HEAD
 ```

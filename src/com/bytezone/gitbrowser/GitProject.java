@@ -17,14 +17,18 @@ public class GitProject
   private final File objectsFolder;
   private final File packFolder;
   private final File headsFolder;
+  private final File remotesFolder;
 
   private int totalPackedObjects;
   private String head;
+  private String fullHead;
+  private String fetchHead;
 
   private final List<PackFile> packFiles = new ArrayList<> ();
   private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
   private final TreeMap<String, File> filesBySha = new TreeMap<> ();
   private final List<Branch> branches = new ArrayList<> ();
+  private final List<String> remotes = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitProject (String projectPath)
@@ -34,14 +38,17 @@ public class GitProject
     objectsFolder = getMandatoryFile (projectPath + "/.git/objects");
     packFolder = getOptionalFile (projectPath + "/.git/objects/pack");
     headsFolder = getMandatoryFile (projectPath + "/.git/refs/heads");
+    remotesFolder = getOptionalFile (projectPath + "/.git/refs/remotes");
 
     addFiles ();
 
     if (packFolder != null)
       addPackFiles ();
 
-    addBranches ();
-    head = getHead ();
+    fullHead = getHead ();
+    int pos = fullHead.lastIndexOf ('/');
+    head = fullHead.substring (pos + 1);
+    fetchHead = getFetchHead ();
   }
 
   // ---------------------------------------------------------------------------------//
@@ -53,8 +60,27 @@ public class GitProject
       List<String> content =
           Files.readAllLines (new File (projectFolder + "/.git/HEAD").toPath ());
       String line = content.get (0);
-      int pos = line.lastIndexOf ('/');
-      return line.substring (pos + 1);
+      return line;
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace ();
+      return "";
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public String getFetchHead ()
+  // ---------------------------------------------------------------------------------//
+  {
+    try
+    {
+      List<String> content =
+          Files.readAllLines (new File (projectFolder + "/.git/FETCH_HEAD").toPath ());
+      String line = content.get (0);
+      //      int pos = line.lastIndexOf ('/');
+      //      return line.substring (pos + 1);
+      return line;
     }
     catch (IOException e)
     {
@@ -139,6 +165,11 @@ public class GitProject
   // ---------------------------------------------------------------------------------//
   {
     System.out.println (commit.getText ());
+    for (String parentSha : commit.getParentShas ())
+    {
+      // buildShaList (parentSha);
+    }
+
     showTree ((Tree) getObject (commit.getTreeSha ()));
   }
 
@@ -160,6 +191,30 @@ public class GitProject
   }
 
   // ---------------------------------------------------------------------------------//
+  List<String> buildShaList (Commit commit)
+  // ---------------------------------------------------------------------------------//
+  {
+    List<String> shaList = new ArrayList<> ();
+    addTreeShas ((Tree) getObject (commit.getTreeSha ()), shaList);
+    return shaList;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void addTreeShas (Tree tree, List<String> shaList)
+  // ---------------------------------------------------------------------------------//
+  {
+    for (TreeItem treeItem : tree)
+    {
+      shaList.add (treeItem.sha);
+      GitObject object = getObject (treeItem.sha);
+      if (object == null)
+        System.out.println ("*********** object not found *********");
+      else if (object.getObjectType () == ObjectType.TREE)
+        addTreeShas ((Tree) object, shaList);                    // recursion
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
   private void addFiles ()
   // ---------------------------------------------------------------------------------//
   {
@@ -168,30 +223,39 @@ public class GitProject
       if (parentFolder.getName ().length () != 2)
         continue;
 
-      File[] files = parentFolder.listFiles ();
-
-      for (File file : files)
+      for (File file : parentFolder.listFiles ())
       {
         String sha = parentFolder.getName () + file.getName ();
         filesBySha.put (sha, file);
       }
     }
-  }
 
-  // ---------------------------------------------------------------------------------//
-  private void addBranches ()
-  // ---------------------------------------------------------------------------------//
-  {
-    for (File file : headsFolder.listFiles ())
-      try
+    try
+    {
+      // remotes
+      for (File folder : remotesFolder.listFiles ())
+      {
+        for (File file : folder.listFiles ())
+        {
+          List<String> content = Files.readAllLines (file.toPath ());
+          System.out.printf ("%-10s : %-10s %6.6s%n", folder.getName (), file.getName (),
+              content.get (0));
+          remotes.add (folder.getName ());
+        }
+      }
+
+      // branches
+      for (File file : headsFolder.listFiles ())
       {
         List<String> content = Files.readAllLines (file.toPath ());
         branches.add (new Branch (file.getName (), content.get (0)));
+        System.out.printf ("%-10s : %6.6s%n%n", file.getName (), content.get (0));
       }
-      catch (IOException e)
-      {
-        e.printStackTrace ();
-      }
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace ();
+    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -280,7 +344,10 @@ public class GitProject
     text.append ("Pack files .............. %,d%n".formatted (packFiles.size ()));
     text.append ("Packed objects .......... %,d%n".formatted (totalPackedObjects));
     text.append ("Branches ................ %,d%n".formatted (branches.size ()));
+    text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
     text.append ("HEAD .................... %s%n".formatted (head));
+    text.append ("Full HEAD ............... %s%n".formatted (fullHead));
+    text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
 
     return Utility.rtrim (text);
   }
