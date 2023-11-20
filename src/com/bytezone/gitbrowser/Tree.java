@@ -41,6 +41,23 @@ public final class Tree extends GitObject implements Iterable<TreeItem>
   }
 
   // ---------------------------------------------------------------------------------//
+  public String getText (List<String> shaList)
+  // ---------------------------------------------------------------------------------//
+  {
+    StringBuilder text = new StringBuilder (super.toString ());
+
+    text.append ("%n%s%n".formatted (LINE));
+
+    for (TreeItem treeItem : treeItems)
+    {
+      String update = shaList.contains (treeItem.sha) ? "" : "updated";
+      text.append ("%-50s  %s%n".formatted (treeItem, update));
+    }
+
+    return Utility.rtrim (text);
+  }
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public Iterator<TreeItem> iterator ()
   // ---------------------------------------------------------------------------------//

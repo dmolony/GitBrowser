@@ -146,39 +146,67 @@ public class GitProject
   }
 
   // ---------------------------------------------------------------------------------//
-  public void showCommit (String sha)
-  // ---------------------------------------------------------------------------------//
-  {
-    GitObject commit = getObject (sha);
-    if (commit.objectType != ObjectType.COMMIT)
-    {
-      System.out.println ("Not a COMMIT");
-      return;
-    }
-
-    System.out.println (commit.getText ());
-    showTree ((Tree) getObject (((Commit) commit).getTreeSha ()));
-  }
+  //  public void showCommit (String sha)
+  //  // ---------------------------------------------------------------------------------//
+  //  {
+  //    GitObject commit = getObject (sha);
+  //    if (commit.objectType != ObjectType.COMMIT)
+  //    {
+  //      System.out.println ("Not a COMMIT");
+  //      return;
+  //    }
+  //
+  //    System.out.println (commit.getText ());
+  //    showTree ((Tree) getObject (((Commit) commit).getTreeSha ()));
+  //  }
 
   // ---------------------------------------------------------------------------------//
   private void showCommit (Commit commit)
   // ---------------------------------------------------------------------------------//
   {
     System.out.println (commit.getText ());
+    List<String> shaList = new ArrayList<> ();
+
+    // build list of shas in the parent commits
     for (String parentSha : commit.getParentShas ())
     {
-      // buildShaList (parentSha);
+      Commit previousCommit = (Commit) getObject (parentSha);
+      addTreeShas ((Tree) getObject (previousCommit.getTreeSha ()), shaList);
     }
 
-    showTree ((Tree) getObject (commit.getTreeSha ()));
+    //    System.out.println ("Previous SHAs");
+    //    for (String sha : shaList)
+    //      System.out.println (sha);
+
+    showTreeWithPrevious ((Tree) getObject (commit.getTreeSha ()), shaList);
   }
 
+  // walk the commit tree
   // ---------------------------------------------------------------------------------//
-  private void showTree (Tree tree)
+  //  private void showTree (Tree tree)
+  //  // ---------------------------------------------------------------------------------//
+  //  {
+  //    System.out.println ();
+  //    System.out.println (getObject (tree.getSha ()).getText ());
+  //
+  //    for (TreeItem treeItem : tree)
+  //    {
+  //      GitObject object = getObject (treeItem.sha);
+  //      if (object == null)
+  //        System.out.println ("*********** object not found *********");
+  //      else if (object.getObjectType () == ObjectType.TREE)
+  //        showTree ((Tree) object);                               // recursion
+  //    }
+  //  }
+
+  // walk the commit tree
+  // ---------------------------------------------------------------------------------//
+  private void showTreeWithPrevious (Tree tree, List<String> shaList)
   // ---------------------------------------------------------------------------------//
   {
     System.out.println ();
-    System.out.println (getObject (tree.getSha ()).getText ());
+    //    System.out.println (getObject (tree.getSha ()).getText ());
+    System.out.println (tree.getText (shaList));
 
     for (TreeItem treeItem : tree)
     {
@@ -186,19 +214,11 @@ public class GitProject
       if (object == null)
         System.out.println ("*********** object not found *********");
       else if (object.getObjectType () == ObjectType.TREE)
-        showTree ((Tree) object);                               // recursion
+        showTreeWithPrevious ((Tree) object, shaList);           // recursion
     }
   }
 
-  // ---------------------------------------------------------------------------------//
-  List<String> buildShaList (Commit commit)
-  // ---------------------------------------------------------------------------------//
-  {
-    List<String> shaList = new ArrayList<> ();
-    addTreeShas ((Tree) getObject (commit.getTreeSha ()), shaList);
-    return shaList;
-  }
-
+  // build list of shas used by the previous commit
   // ---------------------------------------------------------------------------------//
   void addTreeShas (Tree tree, List<String> shaList)
   // ---------------------------------------------------------------------------------//
