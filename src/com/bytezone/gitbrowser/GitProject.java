@@ -28,7 +28,7 @@ public class GitProject
   private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
   private final TreeMap<String, File> filesBySha = new TreeMap<> ();
   private final List<Branch> branches = new ArrayList<> ();
-  private final List<String> remotes = new ArrayList<> ();
+  private final List<Remote> remotes = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
   public GitProject (String projectPath)
@@ -262,9 +262,8 @@ public class GitProject
           for (File file : folder.listFiles ())
           {
             List<String> content = Files.readAllLines (file.toPath ());
-            System.out.printf ("%-10s : %-10s %6.6s%n", folder.getName (),
-                file.getName (), content.get (0));
-            remotes.add (folder.getName ());
+            remotes
+                .add (new Remote (folder.getName (), file.getName (), content.get (0)));
           }
         }
 
@@ -356,6 +355,12 @@ public class GitProject
   };
 
   // ---------------------------------------------------------------------------------//
+  record Remote (String name, String head, String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+  };
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public String toString ()
   // ---------------------------------------------------------------------------------//
@@ -380,6 +385,13 @@ public class GitProject
     }
 
     text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
+
+    for (Remote remote : remotes)
+    {
+      String label = remote.name + " .........................";
+      text.append ("  %23.23s %6.6s %s%n".formatted (label, remote.sha, remote.head));
+    }
+
     text.append ("HEAD .................... %s%n".formatted (fullHead));
     text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
 
