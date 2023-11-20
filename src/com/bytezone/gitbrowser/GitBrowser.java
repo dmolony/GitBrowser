@@ -6,8 +6,8 @@ import java.io.FileNotFoundException;
 public class GitBrowser
 // -----------------------------------------------------------------------------------//
 {
-  String gitFolderName = System.getProperty ("user.home") + "/Documents/GitLocal/";
-  //  String gitFolderName = System.getProperty ("user.home") + "/code/git/";
+  //  String gitFolderName = System.getProperty ("user.home") + "/Documents/GitLocal/";
+  String gitFolderName = System.getProperty ("user.home") + "/code/git/";
 
   // ---------------------------------------------------------------------------------//
   public GitBrowser () throws FileNotFoundException
@@ -17,13 +17,13 @@ public class GitBrowser
     //    String project = "DiskTest";
     //    String project = "EnigmaMachine";
     //    String project = "AppleFormat";
-    String project = "GitBrowser";
+    //    String project = "GitBrowser";
     //    String project = "Plexer";
     //    String project = "VistaFob";
     //    String project = "Dataset";
     //    String project = "LoadLister";
     //    String project = "BreadBoard";
-    //    String project = "alpha";
+    String project = "alpha";
 
     GitProject gitProject = new GitProject (gitFolderName + project);
 

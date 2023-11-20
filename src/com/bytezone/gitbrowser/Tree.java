@@ -51,7 +51,7 @@ public final class Tree extends GitObject implements Iterable<TreeItem>
     for (TreeItem treeItem : treeItems)
     {
       String update = shaList.contains (treeItem.sha) ? "" : "updated";
-      text.append ("%-50s  %s%n".formatted (treeItem, update));
+      text.append ("%-52s %s%n".formatted (treeItem, update));
     }
 
     return Utility.rtrim (text);

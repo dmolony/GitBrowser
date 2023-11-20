@@ -36,8 +36,9 @@ public class GitProject
   {
     projectFolder = getMandatoryFile (projectPath);
     objectsFolder = getMandatoryFile (projectPath + "/.git/objects");
-    packFolder = getOptionalFile (projectPath + "/.git/objects/pack");
     headsFolder = getMandatoryFile (projectPath + "/.git/refs/heads");
+
+    packFolder = getOptionalFile (projectPath + "/.git/objects/pack");
     remotesFolder = getOptionalFile (projectPath + "/.git/refs/remotes");
 
     addFiles ();
@@ -75,11 +76,13 @@ public class GitProject
   {
     try
     {
-      List<String> content =
-          Files.readAllLines (new File (projectFolder + "/.git/FETCH_HEAD").toPath ());
+      File fetchHeadFile = new File (projectFolder + "/.git/FETCH_HEAD");
+      if (!fetchHeadFile.exists ())
+        return "";
+
+      List<String> content = Files.readAllLines (fetchHeadFile.toPath ());
       String line = content.get (0);
-      //      int pos = line.lastIndexOf ('/');
-      //      return line.substring (pos + 1);
+
       return line;
     }
     catch (IOException e)
@@ -253,23 +256,23 @@ public class GitProject
     try
     {
       // remotes
-      for (File folder : remotesFolder.listFiles ())
-      {
-        for (File file : folder.listFiles ())
+      if (remotesFolder != null)
+        for (File folder : remotesFolder.listFiles ())
         {
-          List<String> content = Files.readAllLines (file.toPath ());
-          System.out.printf ("%-10s : %-10s %6.6s%n", folder.getName (), file.getName (),
-              content.get (0));
-          remotes.add (folder.getName ());
+          for (File file : folder.listFiles ())
+          {
+            List<String> content = Files.readAllLines (file.toPath ());
+            System.out.printf ("%-10s : %-10s %6.6s%n", folder.getName (),
+                file.getName (), content.get (0));
+            remotes.add (folder.getName ());
+          }
         }
-      }
 
       // branches
       for (File file : headsFolder.listFiles ())
       {
         List<String> content = Files.readAllLines (file.toPath ());
         branches.add (new Branch (file.getName (), content.get (0)));
-        System.out.printf ("%-10s : %6.6s%n%n", file.getName (), content.get (0));
       }
     }
     catch (IOException e)
@@ -361,12 +364,23 @@ public class GitProject
 
     text.append ("Project name ............ %s%n".formatted (projectFolder.getName ()));
     text.append ("Loose objects ........... %,d%n".formatted (filesBySha.size ()));
-    text.append ("Pack files .............. %,d%n".formatted (packFiles.size ()));
-    text.append ("Packed objects .......... %,d%n".formatted (totalPackedObjects));
+
+    if (packFiles.size () > 0)
+    {
+      text.append ("Pack files .............. %,d%n".formatted (packFiles.size ()));
+      text.append ("Packed objects .......... %,d%n".formatted (totalPackedObjects));
+    }
+
     text.append ("Branches ................ %,d%n".formatted (branches.size ()));
+
+    for (Branch branch : branches)
+    {
+      String label = branch.name + " .........................";
+      text.append ("  %23.23s %6.6s%n".formatted (label, branch.sha));
+    }
+
     text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
-    text.append ("HEAD .................... %s%n".formatted (head));
-    text.append ("Full HEAD ............... %s%n".formatted (fullHead));
+    text.append ("HEAD .................... %s%n".formatted (fullHead));
     text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
 
     return Utility.rtrim (text);
