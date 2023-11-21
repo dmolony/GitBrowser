@@ -17,10 +17,10 @@ public final class Commit extends GitObject
   private List<String> message = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
-  public Commit (String name, byte[] data)
+  public Commit (String sha, byte[] data)
   // ---------------------------------------------------------------------------------//
   {
-    super (name, data, ObjectType.COMMIT);
+    super (sha, data, ObjectType.COMMIT);
 
     commitLines = split (data);
     treeSha = skipFirst (commitLines.get (0));          // it's always here

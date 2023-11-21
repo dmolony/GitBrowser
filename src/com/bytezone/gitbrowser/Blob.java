@@ -7,10 +7,10 @@ public final class Blob extends GitObject
   String contents;
 
   // ---------------------------------------------------------------------------------//
-  public Blob (String name, byte[] data)
+  public Blob (String sha, byte[] data)
   // ---------------------------------------------------------------------------------//
   {
-    super (name, data, ObjectType.BLOB);
+    super (sha, data, ObjectType.BLOB);
   }
 
   // ---------------------------------------------------------------------------------//

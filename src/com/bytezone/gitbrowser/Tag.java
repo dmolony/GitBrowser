@@ -13,10 +13,10 @@ public final class Tag extends GitObject
   private String tagger;
 
   // ---------------------------------------------------------------------------------//
-  public Tag (String name, byte[] data)
+  public Tag (String sha, byte[] data)
   // ---------------------------------------------------------------------------------//
   {
-    super (name, data, ObjectType.TAG);
+    super (sha, data, ObjectType.TAG);
 
     tagLines = split (data);
 

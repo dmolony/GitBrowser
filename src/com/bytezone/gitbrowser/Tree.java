@@ -11,10 +11,10 @@ public final class Tree extends GitObject implements Iterable<TreeItem>
   private final List<TreeItem> treeItems = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
-  public Tree (String name, byte[] data)
+  public Tree (String sha, byte[] data)
   // ---------------------------------------------------------------------------------//
   {
-    super (name, data, ObjectType.TREE);
+    super (sha, data, ObjectType.TREE);
 
     int ptr = 0;
     while (ptr < data.length)

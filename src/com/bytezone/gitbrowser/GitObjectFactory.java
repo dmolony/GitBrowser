@@ -21,12 +21,10 @@ public class GitObjectFactory
   }
 
   // ---------------------------------------------------------------------------------//
-  //  public static GitObject getObject (File parent, File file)
   public static GitObject getObject (File file)
   // ---------------------------------------------------------------------------------//
   {
-    File parent = file.getParentFile ();
-    String name = parent.getName () + file.getName ();
+    String sha = file.getParentFile ().getName () + file.getName ();
 
     try
     {
@@ -50,10 +48,10 @@ public class GitObjectFactory
 
       return switch (chunks[0])
       {
-        case "blob" -> new Blob (name, data);
-        case "tree" -> new Tree (name, data);
-        case "commit" -> new Commit (name, data);
-        case "tag" -> new Tag (name, data);
+        case "blob" -> new Blob (sha, data);
+        case "tree" -> new Tree (sha, data);
+        case "commit" -> new Commit (sha, data);
+        case "tag" -> new Tag (sha, data);
         default -> null;
       };
     }

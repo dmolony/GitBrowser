@@ -141,9 +141,10 @@ public class GitProject
       if (branch.name.equals (head))
       {
         System.out.printf ("%nBranch: %s%n%n", branch.name);
-        showCommitChain ((Commit) getObject (branch.sha));
+        Commit commit = (Commit) getObject (branch.sha);
+        showCommitChain (commit);
         System.out.println ();
-        showCommit ((Commit) getObject (branch.sha));
+        showCommit (commit);
         break;
       }
   }
@@ -177,10 +178,6 @@ public class GitProject
       addTreeShas ((Tree) getObject (previousCommit.getTreeSha ()), shaList);
     }
 
-    //    System.out.println ("Previous SHAs");
-    //    for (String sha : shaList)
-    //      System.out.println (sha);
-
     showTreeWithPrevious ((Tree) getObject (commit.getTreeSha ()), shaList);
   }
 
@@ -208,7 +205,6 @@ public class GitProject
   // ---------------------------------------------------------------------------------//
   {
     System.out.println ();
-    //    System.out.println (getObject (tree.getSha ()).getText ());
     System.out.println (tree.getText (shaList));
 
     for (TreeItem treeItem : tree)
@@ -241,38 +237,25 @@ public class GitProject
   private void addFiles ()
   // ---------------------------------------------------------------------------------//
   {
+    // loose objects
     for (File parentFolder : objectsFolder.listFiles ())
-    {
-      if (parentFolder.getName ().length () != 2)
-        continue;
-
-      for (File file : parentFolder.listFiles ())
-      {
-        String sha = parentFolder.getName () + file.getName ();
-        filesBySha.put (sha, file);
-      }
-    }
+      if (parentFolder.getName ().length () == 2)
+        for (File file : parentFolder.listFiles ())
+          filesBySha.put (parentFolder.getName () + file.getName (), file);
 
     try
     {
       // remotes
       if (remotesFolder != null)
         for (File folder : remotesFolder.listFiles ())
-        {
           for (File file : folder.listFiles ())
-          {
-            List<String> content = Files.readAllLines (file.toPath ());
-            remotes
-                .add (new Remote (folder.getName (), file.getName (), content.get (0)));
-          }
-        }
+            for (String content : Files.readAllLines (file.toPath ()))
+              remotes.add (new Remote (folder.getName (), file.getName (), content));
 
       // branches
       for (File file : headsFolder.listFiles ())
-      {
-        List<String> content = Files.readAllLines (file.toPath ());
-        branches.add (new Branch (file.getName (), content.get (0)));
-      }
+        for (String content : Files.readAllLines (file.toPath ()))
+          branches.add (new Branch (file.getName (), content));
     }
     catch (IOException e)
     {
@@ -291,14 +274,12 @@ public class GitProject
 
     // add pack and reverse files
     for (File file : packFolder.listFiles ())
-    {
       if (file.getName ().endsWith (".pack"))
         getPackFile (file).addPack (file);
       else if (file.getName ().endsWith (".rev"))
         getPackFile (file).addReverse (file);
       else if (!file.getName ().endsWith (".idx"))
         System.out.printf ("Unknown file : %s%n", file.getName ());
-    }
 
     // create SHA mappings
     for (PackFile packFile : packFiles)
@@ -384,16 +365,21 @@ public class GitProject
       text.append ("  %23.23s %6.6s%n".formatted (label, branch.sha));
     }
 
-    text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
-
-    for (Remote remote : remotes)
+    if (remotes.size () > 0)
     {
-      String label = remote.name + " .........................";
-      text.append ("  %23.23s %6.6s %s%n".formatted (label, remote.sha, remote.head));
+      text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
+
+      for (Remote remote : remotes)
+      {
+        String label = remote.name + " .........................";
+        text.append ("  %23.23s %6.6s %s%n".formatted (label, remote.sha, remote.head));
+      }
     }
 
     text.append ("HEAD .................... %s%n".formatted (fullHead));
-    text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
+
+    if (!fetchHead.isEmpty ())
+      text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
 
     return Utility.rtrim (text);
   }
