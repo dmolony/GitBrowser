@@ -8,7 +8,11 @@ Loose objects ........... 149
 Pack files .............. 1
 Packed objects .......... 14
 Branches ................ 1
-HEAD .................... main
+  main .................. dcd729
+Remotes ................. 1
+  origin ................ dcd729 main
+HEAD .................... ref: refs/heads/main
+FETCH_HEAD .............. dcd729e523127bdb95ee42c7e76d00eb2f6e72a0    branch 'main' of micro:/tank/git/EnigmaMachine
 
 Branch: main
 
@@ -44,29 +48,29 @@ changed error message
 
 95004b  TREE          30
 ------------------------------------------------------------
-86fae9  40000   src
+86fae9  40000   src                                  updated
 
 86fae9  TREE          30
 ------------------------------------------------------------
-ed5b49  40000   com
+ed5b49  40000   com                                  updated
 
 ed5b49  TREE          35
 ------------------------------------------------------------
-c73e9e  40000   bytezone
+c73e9e  40000   bytezone                             updated
 
 c73e9e  TREE          33
 ------------------------------------------------------------
-2d1826  40000   enigma
+2d1826  40000   enigma                               updated
 
 2d1826  TREE         385
 ------------------------------------------------------------
-25db53  100644  BadWiringException.java
-5b9eeb  100644  Enigma.java
-17b627  100644  EntryDisk.java
-0c11be  100644  PlugBoard.java
-e0449d  100644  PlugBoardConnector.java
-47f940  100644  Reflector.java
-8ec280  100644  Rotor.java
-52a7fb  100644  Scrambler.java
-d2fe5e  100644  Wheel.java
+25db53  100644  BadWiringException.java              
+5b9eeb  100644  Enigma.java                          
+17b627  100644  EntryDisk.java                       updated
+0c11be  100644  PlugBoard.java                       
+e0449d  100644  PlugBoardConnector.java              
+47f940  100644  Reflector.java                       
+8ec280  100644  Rotor.java                           
+52a7fb  100644  Scrambler.java                       
+d2fe5e  100644  Wheel.java  
 ```
