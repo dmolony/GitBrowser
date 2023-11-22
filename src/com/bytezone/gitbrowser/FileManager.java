@@ -349,7 +349,8 @@ public class FileManager
     text.append ("HEAD .................... %s%n".formatted (fullHead));
 
     if (!fetchHead.isEmpty ())
-      text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
+      text.append ("FETCH_HEAD .............. %s %s%n"
+          .formatted (fetchHead.substring (0, 6), fetchHead.substring (42)));
 
     return Utility.rtrim (text);
   }

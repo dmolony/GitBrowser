@@ -12,7 +12,7 @@ Branches ................ 1
 Remotes ................. 1
   origin ................ dcd729 main
 HEAD .................... ref: refs/heads/main
-FETCH_HEAD .............. dcd729e523127bdb95ee42c7e76d00eb2f6e72a0    branch 'main' of micro:/tank/git/EnigmaMachine
+FETCH_HEAD .............. dcd729 branch 'main' of micro:/tank/git/EnigmaMachine
 
 Branch: main
 
