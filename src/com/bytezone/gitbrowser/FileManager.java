@@ -1,6 +1,8 @@
 package com.bytezone.gitbrowser;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -15,15 +17,24 @@ public class FileManager
 
   private int totalPackedObjects;
 
-  private File objectsFolder;
-  private File packFolder;
+  private final File projectFolder;
+  private final File objectsFolder;
+  private final File packFolder;
+  private final File headsFolder;
+  private final File remotesFolder;
+
+  private final List<Branch> branches = new ArrayList<> ();
+  private final List<Remote> remotes = new ArrayList<> ();
 
   // ---------------------------------------------------------------------------------//
   public FileManager (String projectPath)
   // ---------------------------------------------------------------------------------//
   {
+    projectFolder = getMandatoryFile (projectPath);
     objectsFolder = getMandatoryFile (projectPath + "/.git/objects");
     packFolder = getOptionalFile (projectPath + "/.git/objects/pack");
+    headsFolder = getMandatoryFile (projectPath + "/.git/refs/heads");
+    remotesFolder = getOptionalFile (projectPath + "/.git/refs/remotes");
 
     addFiles ();
 
@@ -52,6 +63,13 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  public String getProjectName ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return projectFolder.getName ();
+  }
+
+  // ---------------------------------------------------------------------------------//
   public int getTotalLooseObjects ()
   // ---------------------------------------------------------------------------------//
   {
@@ -73,6 +91,20 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  public List<Branch> getBranches ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return branches;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public List<Remote> getRemotes ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return remotes;
+  }
+
+  // ---------------------------------------------------------------------------------//
   private void addFiles ()
   // ---------------------------------------------------------------------------------//
   {
@@ -80,6 +112,24 @@ public class FileManager
       if (parentFolder.getName ().length () == 2)
         for (File file : parentFolder.listFiles ())
           filesBySha.put (parentFolder.getName () + file.getName (), file);
+    try
+    {
+      // remotes
+      if (remotesFolder != null)
+        for (File folder : remotesFolder.listFiles ())
+          for (File file : folder.listFiles ())
+            for (String content : Files.readAllLines (file.toPath ()))
+              remotes.add (new Remote (folder.getName (), file.getName (), content));
+
+      // branches
+      for (File file : headsFolder.listFiles ())
+        for (String content : Files.readAllLines (file.toPath ()))
+          branches.add (new Branch (file.getName (), content));
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace ();
+    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -122,6 +172,46 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  public String getHead ()
+  // ---------------------------------------------------------------------------------//
+  {
+    try
+    {
+      List<String> content =
+          Files.readAllLines (new File (projectFolder + "/.git/HEAD").toPath ());
+      String line = content.get (0);
+      return line;
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace ();
+      return "";
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public String getFetchHead ()
+  // ---------------------------------------------------------------------------------//
+  {
+    try
+    {
+      File fetchHeadFile = new File (projectFolder + "/.git/FETCH_HEAD");
+      if (!fetchHeadFile.exists ())
+        return "";
+
+      List<String> content = Files.readAllLines (fetchHeadFile.toPath ());
+      String line = content.get (0);
+
+      return line;
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace ();
+      return "";
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
   private File getOptionalFile (String path)
   // ---------------------------------------------------------------------------------//
   {
@@ -144,4 +234,16 @@ public class FileManager
 
     return folder;
   }
+
+  // ---------------------------------------------------------------------------------//
+  record Branch (String name, String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+  };
+
+  // ---------------------------------------------------------------------------------//
+  record Remote (String name, String head, String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+  };
 }
