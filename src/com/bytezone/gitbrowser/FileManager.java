@@ -6,14 +6,19 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
+//https://www.alibabacloud.com/blog/597391
 // -----------------------------------------------------------------------------------//
 public class FileManager
 // -----------------------------------------------------------------------------------//
 {
-  private String head;
-  private String fullHead;
-  private String fetchHead;
+  private byte[] buffer = new byte[65536];
+
+  private final String head;
+  private final String fullHead;
+  private final String fetchHead;
 
   private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
   private final TreeMap<String, File> filesBySha = new TreeMap<> ();
@@ -64,7 +69,7 @@ public class FileManager
 
     if (!objectsBySha.containsKey (sha))
       if (filesBySha.containsKey (sha))
-        objectsBySha.put (sha, GitObjectFactory.getObject (filesBySha.get (sha)));
+        objectsBySha.put (sha, getObject (filesBySha.get (sha)));
       else
         System.out.printf ("SHA: %s not found%n", sha);
 
@@ -124,10 +129,12 @@ public class FileManager
   private void addFiles ()
   // ---------------------------------------------------------------------------------//
   {
+    // loose objects
     for (File parentFolder : objectsFolder.listFiles ())
       if (parentFolder.getName ().length () == 2)
         for (File file : parentFolder.listFiles ())
           filesBySha.put (parentFolder.getName () + file.getName (), file);
+
     try
     {
       // remotes
@@ -195,8 +202,7 @@ public class FileManager
     {
       List<String> content =
           Files.readAllLines (new File (projectFolder + "/.git/HEAD").toPath ());
-      String line = content.get (0);
-      return line;
+      return content.get (0);
     }
     catch (IOException e)
     {
@@ -206,7 +212,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
-  public String getFetchHead ()
+  private String getFetchHead ()
   // ---------------------------------------------------------------------------------//
   {
     try
@@ -216,9 +222,7 @@ public class FileManager
         return "";
 
       List<String> content = Files.readAllLines (fetchHeadFile.toPath ());
-      String line = content.get (0);
-
-      return line;
+      return content.get (0);
     }
     catch (IOException e)
     {
@@ -264,6 +268,48 @@ public class FileManager
   };
 
   // ---------------------------------------------------------------------------------//
+  private GitObject getObject (File file)
+  // ---------------------------------------------------------------------------------//
+  {
+    String sha = file.getParentFile ().getName () + file.getName ();
+
+    try
+    {
+      byte[] content = Files.readAllBytes (file.toPath ());
+
+      Inflater decompresser = new Inflater ();
+      decompresser.setInput (content, 0, content.length);
+      int resultLength = decompresser.inflate (buffer);
+      decompresser.end ();
+
+      int ptr = 0;
+      while (buffer[ptr++] != 0)            // find the first null
+        ;
+
+      String type = new String (buffer, 0, ptr - 1, "UTF-8");
+      String[] chunks = type.split (" ");
+      int dataLength = Integer.parseInt (chunks[1]);
+
+      byte[] data = new byte[dataLength];
+      System.arraycopy (buffer, resultLength - dataLength, data, 0, dataLength);
+
+      return switch (chunks[0])
+      {
+        case "blob" -> new Blob (sha, data);
+        case "tree" -> new Tree (sha, data);
+        case "commit" -> new Commit (sha, data);
+        case "tag" -> new Tag (sha, data);
+        default -> null;
+      };
+    }
+    catch (IOException | DataFormatException e)
+    {
+      e.printStackTrace ();
+      return null;
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
   @Override
   public String toString ()
   // ---------------------------------------------------------------------------------//
@@ -273,15 +319,13 @@ public class FileManager
     text.append ("Project name ............ %s%n".formatted (getProjectName ()));
     text.append ("Loose objects ........... %,d%n".formatted (getTotalLooseObjects ()));
 
-    if (getTotalPackedObjects () > 0)
+    if (getTotalPackFiles () > 0)
     {
-      text.append (
-          "Pack files .............. %,d%n".formatted (getTotalPackedObjects ()));
+      text.append ("Pack files .............. %,d%n".formatted (getTotalPackFiles ()));
       text.append (
           "Packed objects .......... %,d%n".formatted (getTotalPackedObjects ()));
     }
 
-    //    List<Branch> branches = fileManager.getBranches ();
     text.append ("Branches ................ %,d%n".formatted (branches.size ()));
 
     for (Branch branch : branches)
@@ -290,7 +334,6 @@ public class FileManager
       text.append ("  %23.23s %6.6s%n".formatted (label, branch.sha ()));
     }
 
-    //    List<Remote> remotes = fileManager.getRemotes ();
     if (remotes.size () > 0)
     {
       text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));

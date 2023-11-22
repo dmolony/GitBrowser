@@ -30,7 +30,7 @@ public class GitBrowser
     System.out.println (gitProject);
     gitProject.showHead ();
     //    System.out.println ();
-    //    gitProject.showObject ("27cb2c");
+    //    gitProject.showObject ("330381");
   }
 
   // ---------------------------------------------------------------------------------//
