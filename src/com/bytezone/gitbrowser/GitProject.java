@@ -4,17 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bytezone.gitbrowser.FileManager.Branch;
-import com.bytezone.gitbrowser.FileManager.Remote;
 import com.bytezone.gitbrowser.GitObject.ObjectType;
 
 // -----------------------------------------------------------------------------------//
 public class GitProject
 // -----------------------------------------------------------------------------------//
 {
-  private String head;
-  private String fullHead;
-  private String fetchHead;
-
   private final FileManager fileManager;
 
   // ---------------------------------------------------------------------------------//
@@ -22,11 +17,6 @@ public class GitProject
   // ---------------------------------------------------------------------------------//
   {
     fileManager = new FileManager (projectPath);
-
-    fullHead = fileManager.getHead ();
-    int pos = fullHead.lastIndexOf ('/');
-    head = fullHead.substring (pos + 1);
-    fetchHead = fileManager.getFetchHead ();
   }
 
   // ---------------------------------------------------------------------------------//
@@ -62,7 +52,7 @@ public class GitProject
   // ---------------------------------------------------------------------------------//
   {
     for (Branch branch : fileManager.getBranches ())
-      if (branch.name ().equals (head))
+      if (branch.name ().equals (fileManager.getHead ()))
       {
         System.out.printf ("%nBranch: %s%n%n", branch.name ());
         Commit commit = (Commit) getObject (branch.sha ());
@@ -129,48 +119,6 @@ public class GitProject
   public String toString ()
   // ---------------------------------------------------------------------------------//
   {
-    StringBuilder text = new StringBuilder ();
-
-    text.append (
-        "Project name ............ %s%n".formatted (fileManager.getProjectName ()));
-    text.append ("Loose objects ........... %,d%n"
-        .formatted (fileManager.getTotalLooseObjects ()));
-
-    if (fileManager.getTotalPackedObjects () > 0)
-    {
-      text.append ("Pack files .............. %,d%n"
-          .formatted (fileManager.getTotalPackedObjects ()));
-      text.append ("Packed objects .......... %,d%n"
-          .formatted (fileManager.getTotalPackedObjects ()));
-    }
-
-    List<Branch> branches = fileManager.getBranches ();
-    text.append ("Branches ................ %,d%n".formatted (branches.size ()));
-
-    for (Branch branch : branches)
-    {
-      String label = branch.name () + " .........................";
-      text.append ("  %23.23s %6.6s%n".formatted (label, branch.sha ()));
-    }
-
-    List<Remote> remotes = fileManager.getRemotes ();
-    if (remotes.size () > 0)
-    {
-      text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
-
-      for (Remote remote : remotes)
-      {
-        String label = remote.name () + " .........................";
-        text.append (
-            "  %23.23s %6.6s %s%n".formatted (label, remote.sha (), remote.head ()));
-      }
-    }
-
-    text.append ("HEAD .................... %s%n".formatted (fullHead));
-
-    if (!fetchHead.isEmpty ())
-      text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
-
-    return Utility.rtrim (text);
+    return fileManager.toString ();
   }
 }

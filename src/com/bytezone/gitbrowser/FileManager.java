@@ -11,6 +11,10 @@ import java.util.TreeMap;
 public class FileManager
 // -----------------------------------------------------------------------------------//
 {
+  private String head;
+  private String fullHead;
+  private String fetchHead;
+
   private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
   private final TreeMap<String, File> filesBySha = new TreeMap<> ();
   private final List<PackFile> packFiles = new ArrayList<> ();
@@ -40,6 +44,11 @@ public class FileManager
 
     if (packFolder != null)
       addPackFiles ();
+
+    fullHead = getFullHead ();
+    int pos = fullHead.lastIndexOf ('/');
+    head = fullHead.substring (pos + 1);
+    fetchHead = getFetchHead ();
   }
 
   // ---------------------------------------------------------------------------------//
@@ -67,6 +76,13 @@ public class FileManager
   // ---------------------------------------------------------------------------------//
   {
     return projectFolder.getName ();
+  }
+
+  // ---------------------------------------------------------------------------------//
+  public String getHead ()
+  // ---------------------------------------------------------------------------------//
+  {
+    return head;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -172,7 +188,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
-  public String getHead ()
+  private String getFullHead ()
   // ---------------------------------------------------------------------------------//
   {
     try
@@ -246,4 +262,52 @@ public class FileManager
   // ---------------------------------------------------------------------------------//
   {
   };
+
+  // ---------------------------------------------------------------------------------//
+  @Override
+  public String toString ()
+  // ---------------------------------------------------------------------------------//
+  {
+    StringBuilder text = new StringBuilder ();
+
+    text.append ("Project name ............ %s%n".formatted (getProjectName ()));
+    text.append ("Loose objects ........... %,d%n".formatted (getTotalLooseObjects ()));
+
+    if (getTotalPackedObjects () > 0)
+    {
+      text.append (
+          "Pack files .............. %,d%n".formatted (getTotalPackedObjects ()));
+      text.append (
+          "Packed objects .......... %,d%n".formatted (getTotalPackedObjects ()));
+    }
+
+    //    List<Branch> branches = fileManager.getBranches ();
+    text.append ("Branches ................ %,d%n".formatted (branches.size ()));
+
+    for (Branch branch : branches)
+    {
+      String label = branch.name () + " .........................";
+      text.append ("  %23.23s %6.6s%n".formatted (label, branch.sha ()));
+    }
+
+    //    List<Remote> remotes = fileManager.getRemotes ();
+    if (remotes.size () > 0)
+    {
+      text.append ("Remotes ................. %,d%n".formatted (remotes.size ()));
+
+      for (Remote remote : remotes)
+      {
+        String label = remote.name () + " .........................";
+        text.append (
+            "  %23.23s %6.6s %s%n".formatted (label, remote.sha (), remote.head ()));
+      }
+    }
+
+    text.append ("HEAD .................... %s%n".formatted (fullHead));
+
+    if (!fetchHead.isEmpty ())
+      text.append ("FETCH_HEAD .............. %s%n".formatted (fetchHead));
+
+    return Utility.rtrim (text);
+  }
 }
