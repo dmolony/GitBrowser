@@ -14,7 +14,7 @@ import java.util.zip.Inflater;
 public class FileManager
 // -----------------------------------------------------------------------------------//
 {
-  private byte[] buffer = new byte[65536];
+  private byte[] buffer = new byte[0x10000];
 
   private final String head;
   private final String fullHead;
