@@ -2,9 +2,6 @@ package com.bytezone.gitbrowser;
 
 import java.util.List;
 
-import com.bytezone.gitbrowser.DefaultFileManager.Branch;
-import com.bytezone.gitbrowser.DefaultFileManager.Remote;
-
 // -----------------------------------------------------------------------------------//
 public interface FileManager
 {
@@ -25,4 +22,16 @@ public interface FileManager
   public int getTotalPackFiles ();
 
   public Branch getCurrentBranch ();
+
+  // ---------------------------------------------------------------------------------//
+  record Branch (String name, String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+  };
+
+  // ---------------------------------------------------------------------------------//
+  record Remote (String name, String head, String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+  };
 }

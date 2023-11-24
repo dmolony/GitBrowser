@@ -3,7 +3,7 @@ package com.bytezone.gitbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bytezone.gitbrowser.DefaultFileManager.Branch;
+import com.bytezone.gitbrowser.FileManager.Branch;
 import com.bytezone.gitbrowser.GitObject.ObjectType;
 
 // -----------------------------------------------------------------------------------//

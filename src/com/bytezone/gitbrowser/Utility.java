@@ -1,8 +1,9 @@
 package com.bytezone.gitbrowser;
 
+import java.io.File;
+
 public class Utility
 {
-
   // ---------------------------------------------------------------------------------//
   public static long unsignedInt (byte[] buffer, int ptr)
   // ---------------------------------------------------------------------------------//
@@ -135,5 +136,29 @@ public class Utility
 
       ptr += 16;
     }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  static File getOptionalFile (String path)
+  // ---------------------------------------------------------------------------------//
+  {
+    File folder = new File (path);
+
+    return folder.exists () ? folder : null;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  static File getMandatoryFile (String path)
+  // ---------------------------------------------------------------------------------//
+  {
+    File folder = getOptionalFile (path);
+
+    if (folder == null)
+    {
+      System.out.println ("File not found: " + path);
+      System.exit (0);
+    }
+
+    return folder;
   }
 }

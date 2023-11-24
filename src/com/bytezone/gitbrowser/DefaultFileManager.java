@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-//https://www.alibabacloud.com/blog/597391
+// https://www.alibabacloud.com/blog/597391
 // -----------------------------------------------------------------------------------//
 public class DefaultFileManager implements FileManager
 // -----------------------------------------------------------------------------------//
@@ -39,11 +39,11 @@ public class DefaultFileManager implements FileManager
   public DefaultFileManager (String projectPath)
   // ---------------------------------------------------------------------------------//
   {
-    projectFolder = getMandatoryFile (projectPath);
-    objectsFolder = getMandatoryFile (projectPath + "/.git/objects");
-    packFolder = getOptionalFile (projectPath + "/.git/objects/pack");
-    headsFolder = getMandatoryFile (projectPath + "/.git/refs/heads");
-    remotesFolder = getOptionalFile (projectPath + "/.git/refs/remotes");
+    projectFolder = Utility.getMandatoryFile (projectPath);
+    objectsFolder = Utility.getMandatoryFile (projectPath + "/.git/objects");
+    packFolder = Utility.getOptionalFile (projectPath + "/.git/objects/pack");
+    headsFolder = Utility.getMandatoryFile (projectPath + "/.git/refs/heads");
+    remotesFolder = Utility.getOptionalFile (projectPath + "/.git/refs/remotes");
 
     addFiles ();
 
@@ -94,6 +94,7 @@ public class DefaultFileManager implements FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public Branch getCurrentBranch ()
   // ---------------------------------------------------------------------------------//
   {
@@ -249,42 +250,6 @@ public class DefaultFileManager implements FileManager
       return "";
     }
   }
-
-  // ---------------------------------------------------------------------------------//
-  private File getOptionalFile (String path)
-  // ---------------------------------------------------------------------------------//
-  {
-    File folder = new File (path);
-
-    return folder.exists () ? folder : null;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  private File getMandatoryFile (String path)
-  // ---------------------------------------------------------------------------------//
-  {
-    File folder = getOptionalFile (path);
-
-    if (folder == null)
-    {
-      System.out.println ("File not found: " + path);
-      System.exit (0);
-    }
-
-    return folder;
-  }
-
-  // ---------------------------------------------------------------------------------//
-  record Branch (String name, String sha)
-  // ---------------------------------------------------------------------------------//
-  {
-  };
-
-  // ---------------------------------------------------------------------------------//
-  record Remote (String name, String head, String sha)
-  // ---------------------------------------------------------------------------------//
-  {
-  };
 
   // ---------------------------------------------------------------------------------//
   private GitObject getObject (File file)
