@@ -80,11 +80,14 @@ public class PackFile implements Iterable<PackFileItem>
       {
         boolean largeOffset = (content[ptr] & 0x80) != 0;
         offsetsIndex[i] = Utility.unsignedIntBigEndian (content, ptr);
-        //        if (largeOffset)
-        //        {
-        //          long ofs = offset[i] & 0x7FFFFFFF;
-        //  offsetLong[i] = Utility.unsignedLongBigEndian (content, largeOffsetPtr + ofs);
-        //        }
+
+        // unfinished/untested
+        //    if (largeOffset)
+        //    {
+        //      long ofs = offset[i] & 0x7FFFFFFF;
+        //      offsetLong[i] = 
+        //            Utility.unsignedLongBigEndian (content, largeOffsetPtr + ofs);
+        //    }
 
         ptr += 4;
       }
@@ -241,7 +244,7 @@ public class PackFile implements Iterable<PackFileItem>
   private void updateDeltaRef (PackFileItem packFileItem)
   // ---------------------------------------------------------------------------------//
   {
-    if (packFileItem.getType () == 6)
+    if (packFileItem.getType () == 6)             // OBJ_OFS_DELTA
     {
       PackFileItem basePackFileItem =
           offsetListPackFile.get (packFileItem.getRefOffset ());
@@ -251,7 +254,7 @@ public class PackFile implements Iterable<PackFileItem>
 
       packFileItem.setRefObject (basePackFileItem);
     }
-    else if (packFileItem.getType () == 7)        // not yet tested
+    else if (packFileItem.getType () == 7)        // OBJ_REF_DELTA (won't happen)
     {
       GitObject gitObject = objectsBySha.get (packFileItem.getRefSha ());
 

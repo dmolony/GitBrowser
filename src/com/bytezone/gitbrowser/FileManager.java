@@ -11,7 +11,7 @@ import java.util.zip.Inflater;
 
 //https://www.alibabacloud.com/blog/597391
 // -----------------------------------------------------------------------------------//
-public class FileManager
+public class FileManager implements FileStuff
 // -----------------------------------------------------------------------------------//
 {
   private byte[] buffer = new byte[0x10000];
@@ -57,6 +57,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public GitObject getObject (String sha)
   // ---------------------------------------------------------------------------------//
   {
@@ -77,6 +78,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public String getProjectName ()
   // ---------------------------------------------------------------------------------//
   {
@@ -84,6 +86,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public String getHead ()
   // ---------------------------------------------------------------------------------//
   {
@@ -91,6 +94,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public int getTotalLooseObjects ()
   // ---------------------------------------------------------------------------------//
   {
@@ -98,6 +102,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public int getTotalPackedObjects ()
   // ---------------------------------------------------------------------------------//
   {
@@ -105,6 +110,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public int getTotalPackFiles ()
   // ---------------------------------------------------------------------------------//
   {
@@ -112,6 +118,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public List<Branch> getBranches ()
   // ---------------------------------------------------------------------------------//
   {
@@ -119,6 +126,7 @@ public class FileManager
   }
 
   // ---------------------------------------------------------------------------------//
+  @Override
   public List<Remote> getRemotes ()
   // ---------------------------------------------------------------------------------//
   {
@@ -341,8 +349,12 @@ public class FileManager
       for (Remote remote : remotes)
       {
         String label = remote.name () + " .........................";
-        text.append (
-            "  %23.23s %6.6s %s%n".formatted (label, remote.sha (), remote.head ()));
+        if (remote.sha ().startsWith ("ref:"))
+          text.append (
+              "  %23.23s %s %s%n".formatted (label, remote.sha (), remote.head ()));
+        else
+          text.append (
+              "  %23.23s %6.6s %s%n".formatted (label, remote.sha (), remote.head ()));
       }
     }
 

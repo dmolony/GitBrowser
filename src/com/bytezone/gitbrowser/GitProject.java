@@ -10,7 +10,7 @@ import com.bytezone.gitbrowser.GitObject.ObjectType;
 public class GitProject
 // -----------------------------------------------------------------------------------//
 {
-  private final FileManager fileManager;
+  private final FileStuff fileManager;
 
   // ---------------------------------------------------------------------------------//
   public GitProject (String projectPath)
@@ -61,6 +61,17 @@ public class GitProject
         showCommit (commit);
         break;
       }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  void showCommit (String sha)
+  // ---------------------------------------------------------------------------------//
+  {
+    GitObject object = getObject (sha);
+    if (object instanceof Commit commit)
+      showCommit (commit);
+    else
+      System.out.printf ("Not a commit: %s%n", sha);
   }
 
   // ---------------------------------------------------------------------------------//
