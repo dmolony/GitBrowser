@@ -3,20 +3,20 @@ package com.bytezone.gitbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bytezone.gitbrowser.FileManager.Branch;
+import com.bytezone.gitbrowser.DefaultFileManager.Branch;
 import com.bytezone.gitbrowser.GitObject.ObjectType;
 
 // -----------------------------------------------------------------------------------//
 public class GitProject
 // -----------------------------------------------------------------------------------//
 {
-  private final FileStuff fileManager;
+  private final FileManager fileManager;
 
   // ---------------------------------------------------------------------------------//
   public GitProject (String projectPath)
   // ---------------------------------------------------------------------------------//
   {
-    fileManager = new FileManager (projectPath);
+    fileManager = new DefaultFileManager (projectPath);
   }
 
   // ---------------------------------------------------------------------------------//
@@ -51,16 +51,15 @@ public class GitProject
   void showHead ()
   // ---------------------------------------------------------------------------------//
   {
-    for (Branch branch : fileManager.getBranches ())
-      if (branch.name ().equals (fileManager.getHead ()))
-      {
-        System.out.printf ("%nBranch: %s%n%n", branch.name ());
-        Commit commit = (Commit) getObject (branch.sha ());
-        showCommitChain (commit);
-        System.out.println ();
-        showCommit (commit);
-        break;
-      }
+    Branch branch = fileManager.getCurrentBranch ();
+    if (branch != null)
+    {
+      System.out.printf ("%nBranch: %s%n%n", branch.name ());
+      Commit commit = (Commit) getObject (branch.sha ());
+      showCommitChain (commit);
+      System.out.println ();
+      showCommit (commit);
+    }
   }
 
   // ---------------------------------------------------------------------------------//
