@@ -51,7 +51,7 @@ public class GitProject
   void showHead ()
   // ---------------------------------------------------------------------------------//
   {
-    Branch branch = fileManager.getCurrentBranch ();
+    Branch branch = fileManager.currentBranch ();
     if (branch != null)
     {
       System.out.printf ("%nBranch: %s%n%n", branch.name ());

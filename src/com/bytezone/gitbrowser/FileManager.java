@@ -7,21 +7,21 @@ public interface FileManager
 {
   public GitObject getObject (String sha);
 
-  public String getProjectName ();
+  public String projectName ();
 
-  public String getHead ();
+  public String head ();
 
-  public List<Branch> getBranches ();
+  public List<Branch> branches ();
 
-  public List<Remote> getRemotes ();
+  public List<Remote> remotes ();
 
-  public int getTotalLooseObjects ();
+  public int totalLooseObjects ();
 
-  public int getTotalPackedObjects ();
+  public int totalPackedObjects ();
 
-  public int getTotalPackFiles ();
+  public int totalPackFiles ();
 
-  public Branch getCurrentBranch ();
+  public Branch currentBranch ();
 
   // ---------------------------------------------------------------------------------//
   record Branch (String name, String sha)

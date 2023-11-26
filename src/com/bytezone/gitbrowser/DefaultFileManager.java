@@ -15,16 +15,18 @@ public class DefaultFileManager implements FileManager
 // -----------------------------------------------------------------------------------//
 {
   private byte[] buffer = new byte[0x10000];
+  private static final String DOTS = " .........................";
+  private static final int SHA_LENGTH = 40;
 
   private final String head;
   private final String fullHead;
   private final String fetchHead;
+  private int totalPackedObjects;
 
   private final TreeMap<String, GitObject> objectsBySha = new TreeMap<> ();
   private final TreeMap<String, File> filesBySha = new TreeMap<> ();
-  private final List<PackFile> packFiles = new ArrayList<> ();
 
-  private int totalPackedObjects;
+  private final List<PackFile> packFiles = new ArrayList<> ();
 
   private final File projectFolder;
   private final File objectsFolder;
@@ -61,9 +63,9 @@ public class DefaultFileManager implements FileManager
   public GitObject getObject (String sha)
   // ---------------------------------------------------------------------------------//
   {
-    if (sha.length () < 40)
+    if (sha.length () < SHA_LENGTH)                         // partial key
     {
-      String shaHi = sha + "zz";
+      String shaHi = sha + "z";
       String key = objectsBySha.floorKey (shaHi);
       sha = key.startsWith (sha) ? key : filesBySha.floorKey (shaHi);
     }
@@ -79,7 +81,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public String getProjectName ()
+  public String projectName ()
   // ---------------------------------------------------------------------------------//
   {
     return projectFolder.getName ();
@@ -87,7 +89,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public String getHead ()
+  public String head ()
   // ---------------------------------------------------------------------------------//
   {
     return head;
@@ -95,11 +97,11 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public Branch getCurrentBranch ()
+  public Branch currentBranch ()
   // ---------------------------------------------------------------------------------//
   {
-    for (Branch branch : getBranches ())
-      if (branch.name ().equals (getHead ()))
+    for (Branch branch : branches)
+      if (branch.name ().equals (head))
         return branch;
 
     return null;
@@ -107,7 +109,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public int getTotalLooseObjects ()
+  public int totalLooseObjects ()
   // ---------------------------------------------------------------------------------//
   {
     return filesBySha.size ();
@@ -115,7 +117,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public int getTotalPackedObjects ()
+  public int totalPackedObjects ()
   // ---------------------------------------------------------------------------------//
   {
     return totalPackedObjects;
@@ -123,7 +125,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public int getTotalPackFiles ()
+  public int totalPackFiles ()
   // ---------------------------------------------------------------------------------//
   {
     return packFiles.size ();
@@ -131,7 +133,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public List<Branch> getBranches ()
+  public List<Branch> branches ()
   // ---------------------------------------------------------------------------------//
   {
     return branches;
@@ -139,7 +141,7 @@ public class DefaultFileManager implements FileManager
 
   // ---------------------------------------------------------------------------------//
   @Override
-  public List<Remote> getRemotes ()
+  public List<Remote> remotes ()
   // ---------------------------------------------------------------------------------//
   {
     return remotes;
@@ -300,23 +302,19 @@ public class DefaultFileManager implements FileManager
   {
     StringBuilder text = new StringBuilder ();
 
-    text.append ("Project name ............ %s%n".formatted (getProjectName ()));
-    text.append ("Loose objects ........... %,d%n".formatted (getTotalLooseObjects ()));
+    text.append ("Project name ............ %s%n".formatted (projectName ()));
+    text.append ("Loose objects ........... %,d%n".formatted (totalLooseObjects ()));
 
-    if (getTotalPackFiles () > 0)
+    if (totalPackFiles () > 0)
     {
-      text.append ("Pack files .............. %,d%n".formatted (getTotalPackFiles ()));
-      text.append (
-          "Packed objects .......... %,d%n".formatted (getTotalPackedObjects ()));
+      text.append ("Pack files .............. %,d%n".formatted (totalPackFiles ()));
+      text.append ("Packed objects .......... %,d%n".formatted (totalPackedObjects ()));
     }
 
     text.append ("Branches ................ %,d%n".formatted (branches.size ()));
 
     for (Branch branch : branches)
-    {
-      String label = branch.name () + " .........................";
-      text.append ("  %23.23s %6.6s%n".formatted (label, branch.sha ()));
-    }
+      text.append ("  %23.23s %6.6s%n".formatted (branch.name () + DOTS, branch.sha ()));
 
     if (remotes.size () > 0)
     {
@@ -324,13 +322,10 @@ public class DefaultFileManager implements FileManager
 
       for (Remote remote : remotes)
       {
-        String label = remote.name () + " .........................";
-        if (remote.sha ().startsWith ("ref:"))
-          text.append (
-              "  %23.23s %s %s%n".formatted (label, remote.sha (), remote.head ()));
-        else
-          text.append (
-              "  %23.23s %6.6s %s%n".formatted (label, remote.sha (), remote.head ()));
+        String ref = remote.sha ().startsWith ("ref:") ? remote.sha ()
+            : remote.sha ().substring (0, 6);
+        text.append (
+            "  %23.23s %s %s%n".formatted (remote.name () + DOTS, ref, remote.head ()));
       }
     }
 
