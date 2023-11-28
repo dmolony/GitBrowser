@@ -41,28 +41,28 @@ public final class Commit extends GitObject
   }
 
   // ---------------------------------------------------------------------------------//
-  public List<String> getCommitLines ()
+  public List<String> commitLines ()
   // ---------------------------------------------------------------------------------//
   {
     return commitLines;
   }
 
   // ---------------------------------------------------------------------------------//
-  public List<String> getParentShas ()
+  public List<String> parentShas ()
   // ---------------------------------------------------------------------------------//
   {
     return parentShas;
   }
 
   // ---------------------------------------------------------------------------------//
-  public String getTreeSha ()
+  public String treeSha ()
   // ---------------------------------------------------------------------------------//
   {
     return treeSha;
   }
 
   // ---------------------------------------------------------------------------------//
-  public String getFirstMessageLine ()
+  public String firstMessageLine ()
   // ---------------------------------------------------------------------------------//
   {
     for (String line : message)
@@ -100,6 +100,6 @@ public final class Commit extends GitObject
   // ---------------------------------------------------------------------------------//
   {
     return String.format ("%6.6s  %s  %s", sha, committer.getFormattedDate (),
-        getFirstMessageLine ());
+        firstMessageLine ());
   }
 }

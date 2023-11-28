@@ -33,7 +33,7 @@ public class GitProject
     while (commit != null)
     {
       System.out.println (commit);
-      List<String> parents = commit.getParentShas ();
+      List<String> parents = commit.parentShas ();
       if (parents.size () == 0)
         break;
       commit = (Commit) getObject (parents.get (0));    // not sure about merges
@@ -81,13 +81,13 @@ public class GitProject
     List<String> shaList = new ArrayList<> ();
 
     // build list of shas in the parent commits
-    for (String parentSha : commit.getParentShas ())
+    for (String parentSha : commit.parentShas ())
     {
       Commit previousCommit = (Commit) getObject (parentSha);
-      addTreeShas ((Tree) getObject (previousCommit.getTreeSha ()), shaList);
+      addTreeShas ((Tree) getObject (previousCommit.treeSha ()), shaList);
     }
 
-    showTree ((Tree) getObject (commit.getTreeSha ()), shaList);
+    showTree ((Tree) getObject (commit.treeSha ()), shaList);
   }
 
   // walk the commit tree

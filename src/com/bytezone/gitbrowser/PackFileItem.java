@@ -368,7 +368,7 @@ public class PackFileItem
 
     String parentSha = switch (header.type)
     {
-      case 1 -> ((Commit) object).getTreeSha ();
+      case 1 -> ((Commit) object).treeSha ();
       case 2 -> "";
       case 3 -> "";
       case 4 -> "";

@@ -17,22 +17,22 @@ public class GitBrowser
     //    String project = "DiskTest";
     //    String project = "EnigmaMachine";
     //    String project = "AppleFormat";
-    //    String project = "GitBrowser";
+    String project = "GitBrowser";
     //    String project = "Plexer";
     //    String project = "VistaFob";
     //    String project = "Dataset";
     //    String project = "LoadLister";
     //    String project = "BreadBoard";
-    String project = "branch-example";
+    //    String project = "branch-example";
     //    String project = "alpha";
 
     GitProject gitProject = new GitProject (gitFolderName + project);
 
     System.out.println (gitProject);
     gitProject.showHead ();
-    System.out.println ();
-    //    gitProject.showObject ("f65488");
-    gitProject.showCommit ("f65488");
+    //    System.out.println ();
+    //    gitProject.showObject ("295cec");
+    //    gitProject.showCommit ("b7981c");
   }
 
   // ---------------------------------------------------------------------------------//
